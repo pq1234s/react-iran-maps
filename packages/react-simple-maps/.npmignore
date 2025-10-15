@@ -1,0 +1,11 @@
+node_modules
+*.log
+.turbo
+.eslintrc*
+eslint.config.*
+tsconfig.json
+src
+*.test.*
+*.spec.*
+__tests__
+

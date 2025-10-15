@@ -1,5 +1,6 @@
 {
-  "name": "react-iran-maps",
+  "name": "react-iran-maps-monorepo",
+  "description": "Create powerful React SVG maps of Iran based on d3-geo and topojson.",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -16,7 +17,6 @@
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": ">=20",
-    "pnpm": ">=9.0.0"
+    "node": ">=20"
   }
 }

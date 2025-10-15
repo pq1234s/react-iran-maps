@@ -1,0 +1,63 @@
+{
+  "name": "react-iran-maps",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Create powerful React SVG maps of Iran based on d3-geo and topojson.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": "./src/*.tsx"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "react",
+    "iran",
+    "maps",
+    "components",
+    "persian",
+    "farsi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/react-iran-maps"
+  },
+  "author": "YOUR_NAME",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsup src/index.tsx --format cjs,esm --dts",
+    "lint": "eslint . --max-warnings 0",
+    "generate:component": "turbo gen react-component",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
+    "eslint": "^9.34.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "5.9.2"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {},
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
+  }
+}
