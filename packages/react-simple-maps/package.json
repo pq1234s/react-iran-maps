@@ -19,12 +19,18 @@
     "src"
   ],
   "keywords": [
-    "react",
-    "iran",
-    "maps",
-    "components",
-    "persian",
-    "farsi"
+    "iran-map",
+    "iran-svg-map",
+    "react-map",
+    "persian-map",
+    "react-maps",
+    "react-iran-map",
+    "react-iran-maps",
+    "react-iran-map-component",
+    "iran-choropleth-maps",
+    "iran-svg-maps",
+    "iran-map-component",
+    "react-map-iran"
   ],
   "repository": {
     "type": "git",
