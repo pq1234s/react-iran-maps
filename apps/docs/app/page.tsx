@@ -1,5 +1,8 @@
+"use client";
+
 import Image, { type ImageProps } from "next/image";
 import styles from "./page.module.css";
+import { Map } from "react-iran-maps";
 
 type Props = Omit<ImageProps, "src"> & {
   srcLight: string;
@@ -30,6 +33,7 @@ export default function Home() {
           height={38}
           priority
         />
+        <Map />
         <ol>
           <li>
             Get started by editing <code>apps/docs/app/page.tsx</code>

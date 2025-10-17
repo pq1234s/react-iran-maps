@@ -39,7 +39,8 @@
   "author": "YOUR_NAME",
   "license": "MIT",
   "scripts": {
-    "build": "tsup src/index.tsx --format cjs,esm --dts",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint . --max-warnings 0",
     "generate:component": "turbo gen react-component",
     "check-types": "tsc --noEmit"
@@ -47,9 +48,12 @@
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/d3-geo": "^3.1.0",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
+    "@types/react-simple-maps": "^3.0.6",
+    "@types/topojson-client": "^3.1.5",
     "eslint": "^9.34.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -60,7 +64,12 @@
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "d3-geo": "^3.1.1",
+    "react-simple-maps": "^3.0.0",
+    "react-tooltip": "^5.30.0",
+    "topojson-client": "^3.1.0"
+  },
   "peerDependenciesMeta": {
     "react-dom": {
       "optional": true
