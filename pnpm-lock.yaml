@@ -31,7 +31,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-iran-maps:
         specifier: workspace:*
-        version: link:../../packages/react-simple-maps
+        version: link:../../packages/react-iran-maps
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -68,7 +68,7 @@ importers:
         version: 19.2.0(react@19.2.0)
       react-iran-maps:
         specifier: workspace:*
-        version: link:../../packages/react-simple-maps
+        version: link:../../packages/react-iran-maps
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -128,7 +128,7 @@ importers:
         specifier: ^8.40.0
         version: 8.46.1(eslint@9.37.0)(typescript@5.9.2)
 
-  packages/react-simple-maps:
+  packages/react-iran-maps:
     dependencies:
       d3-geo:
         specifier: ^3.1.1

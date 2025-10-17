@@ -116,9 +116,9 @@ export function Map() {
         return {
           type: "Feature",
           properties: {
-            NAME_1: firstCounty.properties.NAME_1,
-            NL_NAME_1: firstCounty.properties.NL_NAME_1,
-            provincName: firstCounty.properties.provincName,
+            NAME_1: firstCounty?.properties.NAME_1,
+            NL_NAME_1: firstCounty?.properties.NL_NAME_1,
+            provincName: firstCounty?.properties.provincName,
             countyCount: counties.length,
           },
           geometry: mergedGeometry,
