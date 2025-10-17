@@ -4,7 +4,7 @@ export default defineConfig({
   entry: ["src/index.tsx"],
   format: ["cjs", "esm"],
   dts: true,
-  sourcemap: true,
+  sourcemap: false,
   clean: true,
   external: ["react", "react-dom", "react/jsx-runtime"],
   treeshake: true,
