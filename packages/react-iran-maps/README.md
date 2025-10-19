@@ -56,16 +56,55 @@ export default function IranMap() {
 }
 ```
 
+### Isolation Modes
+
+The map supports two isolation modes via the `isolateProvince` prop:
+
+#### Isolated Mode (Default)
+
+```tsx
+import { Map } from "react-iran-maps";
+
+export default function IsolatedMap() {
+  return (
+    <div style={{ width: "800px", height: "600px" }}>
+      <Map isolateProvince={true} />
+    </div>
+  );
+}
+```
+
+When drilling down to a province, **only that province's counties are shown**. Other provinces disappear from view, providing a focused view of the selected region.
+
+#### Context Mode
+
+```tsx
+import { Map } from "react-iran-maps";
+
+export default function ContextMap() {
+  return (
+    <div style={{ width: "800px", height: "600px" }}>
+      <Map isolateProvince={false} />
+    </div>
+  );
+}
+```
+
+When drilling down to a province, **the province's counties are shown with other provinces visible in the background** (dimmed). This provides geographical context while exploring a specific province.
+
 ### Features
 
 The `Map` component includes:
 
 1. **Province View**: Shows all 31 provinces of Iran
 2. **County View**: Click on any province to see its counties
-3. **Hover Effects**: Interactive hover states with visual feedback
-4. **Navigation**: Built-in back button to return to province view
-5. **Information Panel**: Displays current view state and hovered region
-6. **Responsive Design**: Automatically adjusts to container size
+3. **Zoom Animation**: Smooth animated transitions when drilling down
+4. **Zoom Controls**: Interactive zoom buttons and mouse wheel support
+5. **Hover Effects**: Interactive hover states with visual feedback
+6. **Navigation**: Built-in back button to return to province view
+7. **Information Panel**: Displays current view state and hovered region
+8. **Responsive Design**: Automatically adjusts to container size
+9. **Flexible Modes**: Choose between isolated or contextual county view
 
 ### Interaction Flow
 
@@ -81,15 +120,31 @@ The `Map` component includes:
 
 The main map component with built-in interactivity.
 
-**Props**: Currently no props (coming soon: customization props)
+**Props**:
+
+| Prop              | Type      | Default | Description                                                                                                                                                                      |
+| ----------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isolateProvince` | `boolean` | `true`  | When `true`, drilling down shows only the selected province's counties. When `false`, drilling down zooms to the province but still shows all other provinces in the background. |
+
+**Usage Examples**:
+
+```tsx
+// Default: Isolated province view (only shows selected province counties)
+<Map />
+
+// Context view: Shows selected province counties with other provinces visible
+<Map isolateProvince={false} />
+```
 
 **Features**:
 
 - Automatic province/county switching
 - Built-in hover states
-- Click to drill-down functionality
+- Click to drill-down functionality with smooth animation
+- Zoom controls (buttons and mouse wheel)
 - Information display panel
 - Back navigation button
+- Configurable isolation mode
 
 ## Data Structure
 

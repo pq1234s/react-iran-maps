@@ -53,6 +53,7 @@
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
     "@types/react-simple-maps": "^3.0.6",
+    "@types/react-transition-group": "^4.4.12",
     "@types/topojson-client": "^3.1.5",
     "eslint": "^9.34.0",
     "react": "^19.1.0",
@@ -68,6 +69,7 @@
     "d3-geo": "^3.1.1",
     "react-simple-maps": "^3.0.0",
     "react-tooltip": "^5.30.0",
+    "react-transition-group": "^4.4.5",
     "topojson-client": "^3.1.0"
   },
   "peerDependenciesMeta": {
