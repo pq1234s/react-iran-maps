@@ -92,6 +92,69 @@ export default function ContextMap() {
 
 When drilling down to a province, **the province's counties are shown with other provinces visible in the background** (dimmed). This provides geographical context while exploring a specific province.
 
+### Data Visualization (Choropleth Maps)
+
+The Map component supports data-driven visualization, allowing you to display custom data values on provinces and counties with color-coded representation:
+
+```tsx
+import { Map, ProvinceData } from "react-iran-maps";
+
+const mapData: ProvinceData[] = [
+  {
+    name: "تهران",
+    count: 71885,
+    counties: [
+      { name: "اسلامشهر", count: 1583 },
+      { name: "شهرری", count: 2730 },
+      { name: "دماوند", count: 641 },
+    ],
+  },
+  {
+    name: "البرز",
+    count: 9574,
+    counties: [
+      { name: "فردیس", count: 5 },
+      { name: "اشتهارد", count: 98 },
+    ],
+  },
+];
+
+export default function DataMap() {
+  return (
+    <div style={{ width: "100%", height: "600px" }}>
+      <Map
+        data={mapData}
+        colorScale={["#E0F2FE", "#0369A1"]}
+        showOnlyWithData={false}
+      />
+    </div>
+  );
+}
+```
+
+**Data Structure**:
+
+```typescript
+interface CountyData {
+  name: string; // County name (in Persian)
+  count: number; // Value to display
+}
+
+interface ProvinceData {
+  name: string; // Province name (in Persian)
+  count: number; // Value to display
+  counties?: CountyData[]; // Optional county-level data
+}
+```
+
+**Features**:
+
+- **Automatic Color Scaling**: Values are automatically mapped to colors using a gradient
+- **Interactive Tooltips**: Hover over regions to see their values
+- **County-Level Data**: Support for both province and county-level data
+- **Flexible Filtering**: Show only regions with data or display all regions
+- **Custom Color Schemes**: Define your own color gradients
+
 ### Features
 
 The `Map` component includes:
@@ -122,9 +185,12 @@ The main map component with built-in interactivity.
 
 **Props**:
 
-| Prop              | Type      | Default | Description                                                                                                                                                                      |
-| ----------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `isolateProvince` | `boolean` | `true`  | When `true`, drilling down shows only the selected province's counties. When `false`, drilling down zooms to the province but still shows all other provinces in the background. |
+| Prop               | Type               | Default                  | Description                                                                                                                                                                      |
+| ------------------ | ------------------ | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `isolateProvince`  | `boolean`          | `true`                   | When `true`, drilling down shows only the selected province's counties. When `false`, drilling down zooms to the province but still shows all other provinces in the background. |
+| `data`             | `ProvinceData[]`   | `undefined`              | Array of province data with counts and optional county data. When provided, the map displays color-coded regions based on values.                                                |
+| `showOnlyWithData` | `boolean`          | `false`                  | When `true`, only provinces/counties that have data are shown. When `false`, all regions are displayed with data-based coloring where available.                                 |
+| `colorScale`       | `[string, string]` | `["#E0F2FE", "#0369A1"]` | Custom color gradient for data visualization. Provide an array of two colors: `[minColor, maxColor]`.                                                                            |
 
 **Usage Examples**:
 
@@ -134,6 +200,19 @@ The main map component with built-in interactivity.
 
 // Context view: Shows selected province counties with other provinces visible
 <Map isolateProvince={false} />
+
+// Data visualization: Display data with custom colors
+<Map
+  data={mapData}
+  colorScale={["#FEE2E2", "#991B1B"]}
+  showOnlyWithData={false}
+/>
+
+// Show only regions with data
+<Map
+  data={mapData}
+  showOnlyWithData={true}
+/>
 ```
 
 **Features**:
@@ -210,14 +289,15 @@ The package includes high-quality TopoJSON data for Iran:
 
 ## Roadmap
 
-- [ ] Customizable color schemes
+- [x] Customizable color schemes
+- [x] Data layer support for choropleth maps
+- [x] Tooltip support (built-in hover info)
 - [ ] Custom event handlers (onProvinceClick, onCountyClick, etc.)
-- [ ] Tooltip support
-- [ ] Data layer support for choropleth maps
 - [ ] Custom styling props
 - [ ] Labels and annotations
 - [ ] Export/download map as image
 - [ ] Accessibility improvements
+- [ ] Legend component for data visualization
 
 ## Development
 

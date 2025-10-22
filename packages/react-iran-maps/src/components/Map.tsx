@@ -1,39 +1,83 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { geoBounds } from "d3-geo";
+import { scaleLinear } from "d3-scale";
+import { Tooltip } from "react-tooltip";
 
 import { useAllCounties } from "../lib/allCounties";
 import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
+import { MapProps, ProvinceMapItem } from "../types";
+import { useGetProvinceMap } from "../hooks";
+import { getCountyName, getProvinceName } from "../lib";
 
-interface MapProps {
-  /**
-   * When true (default), drilling down shows only the selected province's counties.
-   * When false, drilling down zooms to the province but still shows all other provinces.
-   */
-  isolateProvince?: boolean;
-}
-
-export function Map({ isolateProvince = true }: MapProps) {
+export function Map({
+  isolateProvince = true,
+  data,
+  showOnlyWithData = false,
+  colorScale = ["#E0F2FE", "#0369A1"],
+  renderTooltipContent,
+}: MapProps) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [displayedProvince, setDisplayedProvince] = useState<string | null>(
     null
   );
   const [hoveredGeography, setHoveredGeography] = useState<string | null>(null);
+  const [hoveredCount, setHoveredCount] = useState<number | null>(null);
   const [zoom, setZoom] = useState(1);
   const [animatedScale, setAnimatedScale] = useState(700);
   const [animatedCenter, setAnimatedCenter] = useState<[number, number]>([
     53.5, 32.5,
   ]);
 
+  console.log("this is data", data);
+  const provinceMap = useGetProvinceMap(data);
+  const [tooltipContent, setTooltipContent] = useState<string | undefined>(
+    undefined
+  );
+
   const allCounties = useAllCounties();
   const provinceGeometries = useGenerateProvinceGeometries();
 
+  // Calculate color scales based on data
+  const { provinceColorScale, countyColorScale } = useMemo(() => {
+    if (!data || data.length === 0) {
+      return {
+        provinceColorScale: null,
+        countyColorScale: null,
+      };
+    }
+
+    // Get min/max for provinces
+    const provinceCounts: number[] = Object.values(provinceMap).map(
+      (province) => province.count
+    );
+    const provinceMin = Math.min(...provinceCounts);
+    const provinceMax = Math.max(...provinceCounts);
+    const countyCounts: number[] = Object.values(provinceMap).flatMap(
+      (province) =>
+        Object.values(province.counties ?? {}).map((county) => county.count)
+    );
+    const countyMin = Math.min(...countyCounts);
+    const countyMax = Math.max(...countyCounts);
+
+    return {
+      provinceColorScale: scaleLinear<string>()
+        .domain([provinceMin, provinceMax])
+        .range(colorScale),
+      countyColorScale: scaleLinear<string>()
+        .domain([countyMin, countyMax])
+        .range(colorScale),
+    };
+  }, [data, provinceMap, colorScale]);
+
   // Current view data - uses displayedProvince to keep showing counties during zoom out
   const currentGeographies = useMemo(() => {
+    let geographies;
+
     if (displayedProvince) {
       if (isolateProvince) {
         // Show only counties for selected province
-        return allCounties.filter((county) => {
+        geographies = allCounties.filter((county) => {
           const countyProvinceName =
             county.properties.provincName || county.properties.NAME_1;
           return countyProvinceName === displayedProvince;
@@ -52,13 +96,49 @@ export function Map({ isolateProvince = true }: MapProps) {
             displayedProvince
         );
 
-        return [...selectedCounties, ...otherProvinces];
+        geographies = [...selectedCounties, ...otherProvinces];
       }
     } else {
       // Show provinces
-      return provinceGeometries;
+      geographies = provinceGeometries;
     }
-  }, [displayedProvince, allCounties, provinceGeometries, isolateProvince]);
+
+    // Filter by data if showOnlyWithData is true
+    if (showOnlyWithData && data) {
+      if (displayedProvince) {
+        // Filter counties
+        geographies = geographies.filter((geo) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const props = geo.properties as any;
+          const isCounty = !!props.cityName || !!props.NAME_2;
+          if (isCounty) {
+            const countyName = props.cityName || props.NAME_2;
+            const provinceName = props.provincName || props.NAME_1;
+            return `${provinceName}:${countyName}` in provinceMap;
+          }
+          // Keep provinces in non-isolate mode
+          return true;
+        });
+      } else {
+        // Filter provinces
+        geographies = geographies.filter((geo) => {
+          const provinceName =
+            geo.properties.provincName || geo.properties.NAME_1 || "";
+          return provinceName in provinceMap;
+        });
+      }
+    }
+
+    return geographies;
+  }, [
+    displayedProvince,
+    allCounties,
+    provinceGeometries,
+    isolateProvince,
+    showOnlyWithData,
+    data,
+    provinceMap,
+  ]);
 
   // Calculate optimal center and scale for current view
   const { optimalCenter, optimalScale } = useMemo(() => {
@@ -207,13 +287,11 @@ export function Map({ isolateProvince = true }: MapProps) {
     if (selectedProvince) {
       // If viewing counties, do nothing (could show county details)
       const countyName = geo.properties.cityName || geo.properties.NAME_2;
-      console.log("County clicked:", countyName);
     } else {
       // If viewing provinces, drill down to counties
       const provinceName = geo.properties.provincName || geo.properties.NAME_1;
       setSelectedProvince(provinceName);
       // Center and zoom will be handled by useEffect
-      console.log("Province selected:", provinceName);
     }
   };
 
@@ -223,257 +301,311 @@ export function Map({ isolateProvince = true }: MapProps) {
     // Center and zoom will be handled by useEffect
   };
 
+  console.log("tooltipContent", tooltipContent);
+
   return (
-    <div
-      style={{ position: "relative", width: "100%", height: "100%" }}
-      onWheel={handleWheel}
-    >
-      {/* Back button */}
-      {selectedProvince && (
-        <button
-          onClick={handleBack}
+    <>
+      <Tooltip
+        id="tooltip"
+        style={{
+          zIndex: 1000,
+          color: "black",
+          backgroundColor: "white",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+          padding: "10px",
+        }}
+      />
+      <div
+        style={{ position: "relative", width: "100%", height: "100%" }}
+        onWheel={handleWheel}
+      >
+        {/* Back button */}
+        {selectedProvince && (
+          <button
+            onClick={handleBack}
+            style={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              zIndex: 1000,
+              padding: "8px 16px",
+              backgroundColor: "#333",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "14px",
+            }}
+          >
+            ← Back to Provinces
+          </button>
+        )}
+
+        {/* Zoom controls */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: 10,
+            left: 10,
+            zIndex: 1000,
+            display: "flex",
+            flexDirection: "column",
+            gap: "5px",
+          }}
+        >
+          <button
+            onClick={handleZoomIn}
+            style={{
+              width: "40px",
+              height: "40px",
+              backgroundColor: "#333",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "20px",
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="Zoom In"
+          >
+            +
+          </button>
+          <button
+            onClick={handleZoomOut}
+            style={{
+              width: "40px",
+              height: "40px",
+              backgroundColor: "#333",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "20px",
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="Zoom Out"
+          >
+            −
+          </button>
+          <button
+            onClick={handleResetZoom}
+            style={{
+              width: "40px",
+              height: "40px",
+              backgroundColor: "#333",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="Reset Zoom"
+          >
+            ⟲
+          </button>
+        </div>
+
+        {/* Info panel */}
+        <div
           style={{
             position: "absolute",
             top: 10,
-            left: 10,
+            right: 10,
             zIndex: 1000,
-            padding: "8px 16px",
-            backgroundColor: "#333",
-            color: "white",
-            border: "none",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            padding: "10px",
             borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "14px",
+            fontSize: "12px",
+            maxWidth: "200px",
+            color: "black",
           }}
         >
-          ← Back to Provinces
-        </button>
-      )}
-
-      {/* Zoom controls */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 10,
-          left: 10,
-          zIndex: 1000,
-          display: "flex",
-          flexDirection: "column",
-          gap: "5px",
-        }}
-      >
-        <button
-          onClick={handleZoomIn}
-          style={{
-            width: "40px",
-            height: "40px",
-            backgroundColor: "#333",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "20px",
-            fontWeight: "bold",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          title="Zoom In"
-        >
-          +
-        </button>
-        <button
-          onClick={handleZoomOut}
-          style={{
-            width: "40px",
-            height: "40px",
-            backgroundColor: "#333",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "20px",
-            fontWeight: "bold",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          title="Zoom Out"
-        >
-          −
-        </button>
-        <button
-          onClick={handleResetZoom}
-          style={{
-            width: "40px",
-            height: "40px",
-            backgroundColor: "#333",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          title="Reset Zoom"
-        >
-          ⟲
-        </button>
-      </div>
-
-      {/* Info panel */}
-      <div
-        style={{
-          position: "absolute",
-          top: 10,
-          right: 10,
-          zIndex: 1000,
-          backgroundColor: "rgba(255, 255, 255, 0.9)",
-          padding: "10px",
-          borderRadius: "4px",
-          fontSize: "12px",
-          maxWidth: "200px",
-          color: "black",
-        }}
-      >
-        <div>
-          <strong>View:</strong>{" "}
-          {displayedProvince
-            ? isolateProvince
-              ? `${displayedProvince} Counties`
-              : `${displayedProvince} (with context)`
-            : "Iran Provinces"}
-        </div>
-        <div>
-          <strong>
-            {displayedProvince && !isolateProvince ? "Counties:" : "Count:"}
-          </strong>{" "}
-          {displayedProvince && !isolateProvince
-            ? currentGeographies.filter((geo) => {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const props = geo.properties as any;
-                return !!props.cityName || !!props.NAME_2;
-              }).length
-            : currentGeographies.length}
-        </div>
-        <div>
-          <strong>Zoom:</strong> {zoom.toFixed(1)}x
-        </div>
-        <div>
-          <strong>Scale:</strong> {scale.toFixed(0)}
-        </div>
-        {hoveredGeography && (
           <div>
-            <strong>Hovered:</strong> {hoveredGeography}
+            <strong>View:</strong>{" "}
+            {displayedProvince
+              ? isolateProvince
+                ? `${displayedProvince} Counties`
+                : `${displayedProvince} (with context)`
+              : "Iran Provinces"}
           </div>
-        )}
-      </div>
+          <div>
+            <strong>
+              {displayedProvince && !isolateProvince ? "Counties:" : "Count:"}
+            </strong>{" "}
+            {displayedProvince && !isolateProvince
+              ? currentGeographies.filter((geo) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const props = geo.properties as any;
+                  return !!props.cityName || !!props.NAME_2;
+                }).length
+              : currentGeographies.length}
+          </div>
+          <div>
+            <strong>Zoom:</strong> {zoom.toFixed(1)}x
+          </div>
+          <div>
+            <strong>Scale:</strong> {scale.toFixed(0)}
+          </div>
+          {hoveredGeography && (
+            <div>
+              <strong>Hovered:</strong> {hoveredGeography}
+              {hoveredCount !== null && (
+                <div style={{ marginTop: "4px" }}>
+                  <strong>Value:</strong> {hoveredCount.toLocaleString()}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-      <ComposableMap
-        projection="geoMercator"
-        projectionConfig={{
-          center: animatedCenter,
-          scale: scale,
-        }}
-        width={800}
-        height={600}
-        style={{
-          width: "100%",
-          height: "100%",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          overflow: "hidden",
-        }}
-      >
-        <Geographies
-          geography={{
-            type: "FeatureCollection",
-            features: currentGeographies,
-          }}
+        <div
+          data-tooltip-id="tooltip"
+          data-tooltip-content={tooltipContent ?? ""}
         >
-          {({ geographies }) =>
-            geographies.map((geo) => {
-              // Determine geography type
-              const geoProvinceName =
-                geo.properties.provincName || geo.properties.NAME_1;
-              const isCounty =
-                !!geo.properties.cityName || !!geo.properties.NAME_2;
-              const isSelectedProvinceCounty =
-                displayedProvince &&
-                isCounty &&
-                geoProvinceName === displayedProvince;
-              const isOtherProvince =
-                displayedProvince &&
-                !isCounty &&
-                geoProvinceName !== displayedProvince;
-              const isProvince = !displayedProvince;
+          <ComposableMap
+            projection="geoMercator"
+            projectionConfig={{
+              center: animatedCenter,
+              scale: scale,
+            }}
+            width={800}
+            height={600}
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              overflow: "hidden",
+            }}
+          >
+            <Geographies
+              geography={{
+                type: "FeatureCollection",
+                features: currentGeographies,
+              }}
+            >
+              {({ geographies }) =>
+                geographies.map((geo) => {
+                  // Determine geography type
+                  const geoProvinceName = getProvinceName(geo);
+                  const isCounty = !!getCountyName(geo);
+                  const isSelectedProvinceCounty =
+                    displayedProvince &&
+                    isCounty &&
+                    geoProvinceName === displayedProvince;
+                  const isOtherProvince =
+                    displayedProvince &&
+                    !isCounty &&
+                    geoProvinceName !== displayedProvince;
+                  const isProvince = !displayedProvince;
 
-              const name = isCounty
-                ? geo.properties.cityName || geo.properties.NAME_2 // County name
-                : geo.properties.provincName || geo.properties.NAME_1; // Province name
+                  const name = isCounty
+                    ? geo.properties.cityName || geo.properties.NAME_2 // County name
+                    : geo.properties.provincName || geo.properties.NAME_1; // Province name
 
-              return (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  onMouseEnter={() => setHoveredGeography(name)}
-                  onMouseLeave={() => setHoveredGeography(null)}
-                  onClick={() => handleClick(geo)}
-                  style={{
-                    default: {
-                      fill: isSelectedProvinceCounty
-                        ? "#CBD5E1" // County color
-                        : isOtherProvince
-                          ? "#F1F5F9" // Lighter color for other provinces
-                          : isProvince
-                            ? "#E2E8F0" // Province color
-                            : "#CBD5E1",
-                      stroke: "#FFF",
-                      strokeWidth: isOtherProvince ? 1.5 : 1,
-                      strokeLinejoin: "round",
-                      strokeLinecap: "round",
-                      outline: "none",
-                      vectorEffect: "non-scaling-stroke",
-                      opacity: isOtherProvince ? 0.6 : 1,
-                    },
-                    hover: {
-                      fill: isSelectedProvinceCounty
-                        ? "#10B981"
-                        : isOtherProvince
-                          ? "#E2E8F0"
-                          : "#3B82F6",
-                      stroke: "#FFF",
-                      strokeWidth: isOtherProvince ? 1.5 : 1,
-                      strokeLinejoin: "round",
-                      strokeLinecap: "round",
-                      cursor: "pointer",
-                      outline: "none",
-                      vectorEffect: "non-scaling-stroke",
-                      opacity: isOtherProvince ? 0.7 : 1,
-                    },
-                    pressed: {
-                      fill: isSelectedProvinceCounty
-                        ? "#047857"
-                        : isOtherProvince
-                          ? "#CBD5E1"
-                          : "#1E40AF",
-                      stroke: "#FFF",
-                      strokeWidth: isOtherProvince ? 1.5 : 1,
-                      strokeLinejoin: "round",
-                      strokeLinecap: "round",
-                      outline: "none",
-                      vectorEffect: "non-scaling-stroke",
-                      opacity: isOtherProvince ? 0.7 : 1,
-                    },
-                  }}
-                />
-              );
-            })
-          }
-        </Geographies>
-      </ComposableMap>
-    </div>
+                  // Get data count and color for this geography
+                  let dataCount: number | null = null;
+                  let fillColor: string | null = null;
+
+                  // Default colors (used when no data or no color calculated)
+                  const defaultFill = isSelectedProvinceCounty
+                    ? "#CBD5E1"
+                    : isOtherProvince
+                      ? "#F1F5F9"
+                      : isProvince
+                        ? "#E2E8F0"
+                        : "#CBD5E1";
+
+                  const defaultHoverFill = isSelectedProvinceCounty
+                    ? "#10B981"
+                    : isOtherProvince
+                      ? "#E2E8F0"
+                      : "#3B82F6";
+
+                  const defaultPressedFill = isSelectedProvinceCounty
+                    ? "#047857"
+                    : isOtherProvince
+                      ? "#CBD5E1"
+                      : "#1E40AF";
+                  const provinceName = getProvinceName(
+                    geo,
+                    data?.[0]?.name.match(/\w+/g) ? "en" : "fa"
+                  );
+                  let provinceData: ProvinceMapItem | undefined;
+                  if (provinceName) {
+                    provinceData = provinceMap[provinceName];
+                  }
+
+                  return (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      onMouseEnter={() => {
+                        setTooltipContent(
+                          renderTooltipContent
+                            ? renderTooltipContent(provinceData, geo)
+                            : `${provinceName} - ${provinceData?.count}`
+                        );
+                      }}
+                      onMouseLeave={() => {
+                        setTooltipContent("");
+                        setHoveredGeography(null);
+                        setHoveredCount(null);
+                      }}
+                      onClick={() => handleClick(geo)}
+                      style={{
+                        default: {
+                          fill: fillColor || defaultFill,
+                          stroke: "#FFF",
+                          strokeWidth: isOtherProvince ? 1.5 : 1,
+                          strokeLinejoin: "round",
+                          strokeLinecap: "round",
+                          outline: "none",
+                          vectorEffect: "non-scaling-stroke",
+                          opacity: isOtherProvince ? 0.6 : 1,
+                        },
+                        hover: {
+                          fill: fillColor || defaultHoverFill,
+                          stroke: "#FFF",
+                          strokeWidth: isOtherProvince ? 1.5 : 1,
+                          strokeLinejoin: "round",
+                          strokeLinecap: "round",
+                          cursor: "pointer",
+                          outline: "none",
+                          vectorEffect: "non-scaling-stroke",
+                          opacity: isOtherProvince ? 0.7 : fillColor ? 0.8 : 1,
+                          filter: fillColor ? "brightness(0.9)" : undefined,
+                        },
+                        pressed: {
+                          fill: fillColor || defaultPressedFill,
+                          stroke: "#FFF",
+                          strokeWidth: isOtherProvince ? 1.5 : 1,
+                          strokeLinejoin: "round",
+                          strokeLinecap: "round",
+                          outline: "none",
+                          vectorEffect: "non-scaling-stroke",
+                          opacity: isOtherProvince ? 0.7 : fillColor ? 0.7 : 1,
+                          filter: fillColor ? "brightness(0.8)" : undefined,
+                        },
+                      }}
+                    />
+                  );
+                })
+              }
+            </Geographies>
+          </ComposableMap>
+        </div>
+      </div>
+    </>
   );
 }
