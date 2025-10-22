@@ -315,6 +315,8 @@ export function Map({
           borderRadius: "4px",
           padding: "10px",
         }}
+        data-tooltip-float={true}
+        float={true}
       />
       <div
         style={{ position: "relative", width: "100%", height: "100%" }}
@@ -470,7 +472,14 @@ export function Map({
 
         <div
           data-tooltip-id="tooltip"
-          data-tooltip-content={tooltipContent ?? ""}
+          data-tooltip-html={tooltipContent ?? ""}
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            overflow: "hidden",
+          }}
         >
           <ComposableMap
             projection="geoMercator"
@@ -554,7 +563,12 @@ export function Map({
                         setTooltipContent(
                           renderTooltipContent
                             ? renderTooltipContent(provinceData, geo)
-                            : `${provinceName} - ${provinceData?.count}`
+                            : provinceData?.count
+                              ? `<div>
+                              <div>${geo.properties.provincName}</div>
+                              <div>${provinceData?.count || 0} :تعداد</div>
+                            </div>`
+                              : `${geo.properties.provincName}`
                         );
                       }}
                       onMouseLeave={() => {
