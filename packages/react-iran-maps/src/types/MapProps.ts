@@ -25,6 +25,8 @@ export interface MapProps {
   width?: number;
   height?: number;
 
+  aspectRatio?: string;
+
   renderTooltipContent?: (
     provinceData?: ProvinceMapItem,
     geo?: CountyFeature
