@@ -2,13 +2,13 @@ import React, { useState, useMemo, useEffect } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { geoBounds } from "d3-geo";
 import { scaleLinear } from "d3-scale";
-import { Tooltip } from "react-tooltip";
 
 import { useAllCounties } from "../lib/allCounties";
 import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
 import { MapProps, ProvinceMapItem } from "../types";
 import { useGetProvinceMap } from "../hooks";
 import { getCountyName, getProvinceName } from "../lib";
+import { Tooltip } from "./Tooltip";
 
 export function Map({
   isolateProvince = true,
@@ -39,6 +39,7 @@ export function Map({
   const provinceGeometries = useGenerateProvinceGeometries();
 
   // Calculate color scales based on data
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { provinceColorScale, countyColorScale } = useMemo(() => {
     if (!data || data.length === 0) {
       return {
@@ -286,6 +287,7 @@ export function Map({
   const handleClick = (geo: any) => {
     if (selectedProvince) {
       // If viewing counties, do nothing (could show county details)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const countyName = geo.properties.cityName || geo.properties.NAME_2;
     } else {
       // If viewing provinces, drill down to counties
@@ -305,19 +307,7 @@ export function Map({
 
   return (
     <>
-      <Tooltip
-        id="tooltip"
-        style={{
-          zIndex: 1000,
-          color: "black",
-          backgroundColor: "white",
-          border: "1px solid #ccc",
-          borderRadius: "4px",
-          padding: "10px",
-        }}
-        data-tooltip-float={true}
-        float={true}
-      />
+      <Tooltip />
       <div
         style={{ position: "relative", width: "100%", height: "100%" }}
         onWheel={handleWheel}
@@ -518,13 +508,15 @@ export function Map({
                     geoProvinceName !== displayedProvince;
                   const isProvince = !displayedProvince;
 
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                   const name = isCounty
                     ? geo.properties.cityName || geo.properties.NAME_2 // County name
                     : geo.properties.provincName || geo.properties.NAME_1; // Province name
 
                   // Get data count and color for this geography
-                  let dataCount: number | null = null;
-                  let fillColor: string | null = null;
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder for future data visualization
+                  const dataCount: number | null = null;
+                  const fillColor: string | null = null;
 
                   // Default colors (used when no data or no color calculated)
                   const defaultFill = isSelectedProvinceCounty
