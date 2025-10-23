@@ -22,6 +22,9 @@ export interface MapProps {
    */
   colorScale?: [string, string];
 
+  width?: number;
+  height?: number;
+
   renderTooltipContent?: (
     provinceData?: ProvinceMapItem,
     geo?: CountyFeature

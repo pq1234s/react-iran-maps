@@ -16,6 +16,9 @@ export function Map({
   showOnlyWithData = false,
   colorScale = ["#E0F2FE", "#0369A1"],
   renderTooltipContent,
+  width = 800,
+  height = 600,
+  aspectRatio = "1.23",
 }: MapProps) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [displayedProvince, setDisplayedProvince] = useState<string | null>(
@@ -24,10 +27,8 @@ export function Map({
   const [hoveredGeography, setHoveredGeography] = useState<string | null>(null);
   const [hoveredCount, setHoveredCount] = useState<number | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [animatedScale, setAnimatedScale] = useState(700);
-  const [animatedCenter, setAnimatedCenter] = useState<[number, number]>([
-    53.5, 32.5,
-  ]);
+  const [scale, setScale] = useState(Math.min(width, height) * 3.4);
+  const [center, setCenter] = useState<[number, number]>([53.5, 32.5]);
 
   console.log("this is data", data);
   const provinceMap = useGetProvinceMap(data);
@@ -219,8 +220,8 @@ export function Map({
   useEffect(() => {
     const duration = 600; // Animation duration in ms
     const startTime = Date.now();
-    const startScale = animatedScale;
-    const startCenter = animatedCenter;
+    const startScale = scale;
+    const startCenter = center;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -234,20 +235,20 @@ export function Map({
 
       // Interpolate scale
       const newScale = startScale + (optimalScale - startScale) * eased;
-      setAnimatedScale(newScale);
+      // setScale(newScale);
 
       // Interpolate center
       const newCenter: [number, number] = [
         startCenter[0] + (optimalCenter[0] - startCenter[0]) * eased,
         startCenter[1] + (optimalCenter[1] - startCenter[1]) * eased,
       ];
-      setAnimatedCenter(newCenter);
+      setCenter(newCenter);
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setAnimatedScale(optimalScale);
-        setAnimatedCenter(optimalCenter);
+        // setScale(optimalScale);
+        setCenter(optimalCenter);
       }
     };
 
@@ -256,9 +257,11 @@ export function Map({
   }, [selectedProvince, optimalScale, optimalCenter]);
 
   // Calculate final scale based on animated scale and user zoom
-  const scale = useMemo(() => {
-    return animatedScale * zoom;
-  }, [animatedScale, zoom]);
+  const finalScale = useMemo(() => {
+    console.log("scale", scale);
+    console.log("zoom", zoom);
+    return scale * zoom;
+  }, [scale, zoom]);
 
   // Zoom handlers
   const handleZoomIn = () => {
@@ -308,309 +311,152 @@ export function Map({
   return (
     <>
       <Tooltip />
+
       <div
-        style={{ position: "relative", width: "100%", height: "100%" }}
-        onWheel={handleWheel}
+        data-tooltip-id="tooltip"
+        data-tooltip-html={tooltipContent ?? ""}
+        style={{
+          width: "100%",
+          height: "100%",
+          aspectRatio: aspectRatio,
+        }}
       >
-        {/* Back button */}
-        {selectedProvince && (
-          <button
-            onClick={handleBack}
-            style={{
-              position: "absolute",
-              top: 10,
-              left: 10,
-              zIndex: 1000,
-              padding: "8px 16px",
-              backgroundColor: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "14px",
-            }}
-          >
-            ← Back to Provinces
-          </button>
-        )}
-
-        {/* Zoom controls */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 10,
-            left: 10,
-            zIndex: 1000,
-            display: "flex",
-            flexDirection: "column",
-            gap: "5px",
+        <ComposableMap
+          projection="geoMercator"
+          projectionConfig={{
+            center,
+            scale: finalScale,
           }}
-        >
-          <button
-            onClick={handleZoomIn}
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "20px",
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            title="Zoom In"
-          >
-            +
-          </button>
-          <button
-            onClick={handleZoomOut}
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "20px",
-              fontWeight: "bold",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            title="Zoom Out"
-          >
-            −
-          </button>
-          <button
-            onClick={handleResetZoom}
-            style={{
-              width: "40px",
-              height: "40px",
-              backgroundColor: "#333",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            title="Reset Zoom"
-          >
-            ⟲
-          </button>
-        </div>
-
-        {/* Info panel */}
-        <div
-          style={{
-            position: "absolute",
-            top: 10,
-            right: 10,
-            zIndex: 1000,
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            padding: "10px",
-            borderRadius: "4px",
-            fontSize: "12px",
-            maxWidth: "200px",
-            color: "black",
-          }}
-        >
-          <div>
-            <strong>View:</strong>{" "}
-            {displayedProvince
-              ? isolateProvince
-                ? `${displayedProvince} Counties`
-                : `${displayedProvince} (with context)`
-              : "Iran Provinces"}
-          </div>
-          <div>
-            <strong>
-              {displayedProvince && !isolateProvince ? "Counties:" : "Count:"}
-            </strong>{" "}
-            {displayedProvince && !isolateProvince
-              ? currentGeographies.filter((geo) => {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  const props = geo.properties as any;
-                  return !!props.cityName || !!props.NAME_2;
-                }).length
-              : currentGeographies.length}
-          </div>
-          <div>
-            <strong>Zoom:</strong> {zoom.toFixed(1)}x
-          </div>
-          <div>
-            <strong>Scale:</strong> {scale.toFixed(0)}
-          </div>
-          {hoveredGeography && (
-            <div>
-              <strong>Hovered:</strong> {hoveredGeography}
-              {hoveredCount !== null && (
-                <div style={{ marginTop: "4px" }}>
-                  <strong>Value:</strong> {hoveredCount.toLocaleString()}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div
-          data-tooltip-id="tooltip"
-          data-tooltip-html={tooltipContent ?? ""}
+          width={width}
+          height={height}
           style={{
             width: "100%",
             height: "100%",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            overflow: "hidden",
           }}
         >
-          <ComposableMap
-            projection="geoMercator"
-            projectionConfig={{
-              center: animatedCenter,
-              scale: scale,
-            }}
-            width={800}
-            height={600}
-            style={{
-              width: "100%",
-              height: "100%",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              overflow: "hidden",
+          <Geographies
+            geography={{
+              type: "FeatureCollection",
+              features: currentGeographies,
             }}
           >
-            <Geographies
-              geography={{
-                type: "FeatureCollection",
-                features: currentGeographies,
-              }}
-            >
-              {({ geographies }) =>
-                geographies.map((geo) => {
-                  // Determine geography type
-                  const geoProvinceName = getProvinceName(geo);
-                  const isCounty = !!getCountyName(geo);
-                  const isSelectedProvinceCounty =
-                    displayedProvince &&
-                    isCounty &&
-                    geoProvinceName === displayedProvince;
-                  const isOtherProvince =
-                    displayedProvince &&
-                    !isCounty &&
-                    geoProvinceName !== displayedProvince;
-                  const isProvince = !displayedProvince;
+            {({ geographies }) =>
+              geographies.map((geo) => {
+                // Determine geography type
+                const geoProvinceName = getProvinceName(geo);
+                const isCounty = !!getCountyName(geo);
+                const isSelectedProvinceCounty =
+                  displayedProvince &&
+                  isCounty &&
+                  geoProvinceName === displayedProvince;
+                const isOtherProvince =
+                  displayedProvince &&
+                  !isCounty &&
+                  geoProvinceName !== displayedProvince;
+                const isProvince = !displayedProvince;
 
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                  const name = isCounty
-                    ? geo.properties.cityName || geo.properties.NAME_2 // County name
-                    : geo.properties.provincName || geo.properties.NAME_1; // Province name
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const name = isCounty
+                  ? geo.properties.cityName || geo.properties.NAME_2 // County name
+                  : geo.properties.provincName || geo.properties.NAME_1; // Province name
 
-                  // Get data count and color for this geography
-                  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder for future data visualization
-                  const dataCount: number | null = null;
-                  const fillColor: string | null = null;
+                // Get data count and color for this geography
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder for future data visualization
+                const dataCount: number | null = null;
+                const fillColor: string | null = null;
 
-                  // Default colors (used when no data or no color calculated)
-                  const defaultFill = isSelectedProvinceCounty
-                    ? "#CBD5E1"
-                    : isOtherProvince
-                      ? "#F1F5F9"
-                      : isProvince
-                        ? "#E2E8F0"
-                        : "#CBD5E1";
-
-                  const defaultHoverFill = isSelectedProvinceCounty
-                    ? "#10B981"
-                    : isOtherProvince
+                // Default colors (used when no data or no color calculated)
+                const defaultFill = isSelectedProvinceCounty
+                  ? "#CBD5E1"
+                  : isOtherProvince
+                    ? "#F1F5F9"
+                    : isProvince
                       ? "#E2E8F0"
-                      : "#3B82F6";
+                      : "#CBD5E1";
 
-                  const defaultPressedFill = isSelectedProvinceCounty
-                    ? "#047857"
-                    : isOtherProvince
-                      ? "#CBD5E1"
-                      : "#1E40AF";
-                  const provinceName = getProvinceName(
-                    geo,
-                    data?.[0]?.name.match(/\w+/g) ? "en" : "fa"
-                  );
-                  let provinceData: ProvinceMapItem | undefined;
-                  if (provinceName) {
-                    provinceData = provinceMap[provinceName];
-                  }
+                const defaultHoverFill = isSelectedProvinceCounty
+                  ? "#10B981"
+                  : isOtherProvince
+                    ? "#E2E8F0"
+                    : "#3B82F6";
 
-                  return (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      onMouseEnter={() => {
-                        setTooltipContent(
-                          renderTooltipContent
-                            ? renderTooltipContent(provinceData, geo)
-                            : provinceData?.count
-                              ? `<div>
+                const defaultPressedFill = isSelectedProvinceCounty
+                  ? "#047857"
+                  : isOtherProvince
+                    ? "#CBD5E1"
+                    : "#1E40AF";
+                const provinceName = getProvinceName(
+                  geo,
+                  data?.[0]?.name.match(/\w+/g) ? "en" : "fa"
+                );
+                let provinceData: ProvinceMapItem | undefined;
+                if (provinceName) {
+                  provinceData = provinceMap[provinceName];
+                }
+
+                return (
+                  <Geography
+                    key={geo.rsmKey}
+                    geography={geo}
+                    onMouseEnter={() => {
+                      setTooltipContent(
+                        renderTooltipContent
+                          ? renderTooltipContent(provinceData, geo)
+                          : provinceData?.count
+                            ? `<div>
                               <div>${geo.properties.provincName}</div>
                               <div>${provinceData?.count || 0} :تعداد</div>
                             </div>`
-                              : `${geo.properties.provincName}`
-                        );
-                      }}
-                      onMouseLeave={() => {
-                        setTooltipContent("");
-                        setHoveredGeography(null);
-                        setHoveredCount(null);
-                      }}
-                      onClick={() => handleClick(geo)}
-                      style={{
-                        default: {
-                          fill: fillColor || defaultFill,
-                          stroke: "#FFF",
-                          strokeWidth: isOtherProvince ? 1.5 : 1,
-                          strokeLinejoin: "round",
-                          strokeLinecap: "round",
-                          outline: "none",
-                          vectorEffect: "non-scaling-stroke",
-                          opacity: isOtherProvince ? 0.6 : 1,
-                        },
-                        hover: {
-                          fill: fillColor || defaultHoverFill,
-                          stroke: "#FFF",
-                          strokeWidth: isOtherProvince ? 1.5 : 1,
-                          strokeLinejoin: "round",
-                          strokeLinecap: "round",
-                          cursor: "pointer",
-                          outline: "none",
-                          vectorEffect: "non-scaling-stroke",
-                          opacity: isOtherProvince ? 0.7 : fillColor ? 0.8 : 1,
-                          filter: fillColor ? "brightness(0.9)" : undefined,
-                        },
-                        pressed: {
-                          fill: fillColor || defaultPressedFill,
-                          stroke: "#FFF",
-                          strokeWidth: isOtherProvince ? 1.5 : 1,
-                          strokeLinejoin: "round",
-                          strokeLinecap: "round",
-                          outline: "none",
-                          vectorEffect: "non-scaling-stroke",
-                          opacity: isOtherProvince ? 0.7 : fillColor ? 0.7 : 1,
-                          filter: fillColor ? "brightness(0.8)" : undefined,
-                        },
-                      }}
-                    />
-                  );
-                })
-              }
-            </Geographies>
-          </ComposableMap>
-        </div>
+                            : `${geo.properties.provincName}`
+                      );
+                    }}
+                    onMouseLeave={() => {
+                      setTooltipContent("");
+                      setHoveredGeography(null);
+                      setHoveredCount(null);
+                    }}
+                    onClick={() => handleClick(geo)}
+                    style={{
+                      default: {
+                        fill: fillColor || defaultFill,
+                        stroke: "#FFF",
+                        strokeWidth: isOtherProvince ? 1.5 : 1,
+                        strokeLinejoin: "round",
+                        strokeLinecap: "round",
+                        outline: "none",
+                        vectorEffect: "non-scaling-stroke",
+                        opacity: isOtherProvince ? 0.6 : 1,
+                      },
+                      hover: {
+                        fill: fillColor || defaultHoverFill,
+                        stroke: "#FFF",
+                        strokeWidth: isOtherProvince ? 1.5 : 1,
+                        strokeLinejoin: "round",
+                        strokeLinecap: "round",
+                        cursor: "pointer",
+                        outline: "none",
+                        vectorEffect: "non-scaling-stroke",
+                        opacity: isOtherProvince ? 0.7 : fillColor ? 0.8 : 1,
+                        filter: fillColor ? "brightness(0.9)" : undefined,
+                      },
+                      pressed: {
+                        fill: fillColor || defaultPressedFill,
+                        stroke: "#FFF",
+                        strokeWidth: isOtherProvince ? 1.5 : 1,
+                        strokeLinejoin: "round",
+                        strokeLinecap: "round",
+                        outline: "none",
+                        vectorEffect: "non-scaling-stroke",
+                        opacity: isOtherProvince ? 0.7 : fillColor ? 0.7 : 1,
+                        filter: fillColor ? "brightness(0.8)" : undefined,
+                      },
+                    }}
+                  />
+                );
+              })
+            }
+          </Geographies>
+        </ComposableMap>
       </div>
     </>
   );
