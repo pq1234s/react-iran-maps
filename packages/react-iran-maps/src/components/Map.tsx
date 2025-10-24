@@ -41,8 +41,6 @@ export function Map({
   const [minRange, setMinRange] = useState<number>(0);
   const [maxRange, setMaxRange] = useState<number>(0);
 
-  console.log("this is min max range", minRange, maxRange);
-
   const provinceMap = useGetProvinceMap(data);
   const [tooltipContent, setTooltipContent] = useState<string | undefined>(
     undefined
@@ -388,21 +386,6 @@ export function Map({
                         ]
                       : provinceMap[provinceName];
                 }
-                // console.log(
-                //   "this is currentItem",
-                //   currentItem,
-                //   geo,
-                //   selectedProvince,
-                //   geo.properties.cityName
-                // );
-                // console.log(
-                //   "this is currentItem",
-                //   currentItem,
-                //   provinceName,
-                //   provinceMap,
-                //   selectedProvince,
-                //   provinceMap?.[selectedProvince ?? ""]
-                // );
 
                 return (
                   <Geography
@@ -412,12 +395,10 @@ export function Map({
                       setTooltipContent(
                         renderTooltipContent
                           ? renderTooltipContent(currentItem, geo)
-                          : currentItem?.count
-                            ? `<div>
-                              <div>${geo.properties.provincName}</div>
+                          : `<div>
+                              <div>${selectedProvince ? geo.properties.cityName : geo.properties.provincName}</div>
                               <div>${currentItem?.count || 0} :تعداد</div>
                             </div>`
-                            : `${geo.properties.provincName}`
                       );
                     }}
                     onMouseLeave={() => {
