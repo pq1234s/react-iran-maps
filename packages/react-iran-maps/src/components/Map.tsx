@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { geoBounds } from "d3-geo";
 import { scaleLinear } from "d3-scale";
@@ -54,17 +54,20 @@ export function Map({
   const [tooltipContent, setTooltipContent] = useState<string | undefined>(
     undefined
   );
-  console.log("this is provinceMap", selectedProvince);
 
-  const getColor = (count?: number) => {
-    if (!count || count === 0) {
-      return "#fff";
-    }
+  const getColor = useCallback(
+    (count?: number) => {
+      console.log("this is count", count);
+      if (!count || count === 0) {
+        return "#fff";
+      }
 
-    return scaleLinear<string>()
-      .domain([minRange, maxRange])
-      .range(colorScale || DEFAULT_COLOR_RANGE)(count);
-  };
+      return scaleLinear<string>()
+        .domain([minRange, maxRange])
+        .range(colorScale || DEFAULT_COLOR_RANGE)(count);
+    },
+    [minRange, maxRange, colorScale]
+  );
 
   useEffect(() => {
     const dataMap:
@@ -382,13 +385,20 @@ export function Map({
                 );
                 let currentItem: ProvinceMapItem | undefined;
                 if (provinceName) {
-                  currentItem = selectedProvince
-                    ? provinceMap[selectedProvince]?.counties?.[
-                        geo.properties.cityName
-                      ]
-                    : provinceMap[provinceName];
+                  currentItem =
+                    selectedProvince && geo.properties.cityName
+                      ? provinceMap[selectedProvince]?.counties?.[
+                          geo.properties.cityName
+                        ]
+                      : provinceMap[provinceName];
                 }
-                console.log("this is provinceMap", provinceMap, geo);
+                console.log(
+                  "this is currentItem",
+                  currentItem,
+                  geo,
+                  selectedProvince,
+                  geo.properties.cityName
+                );
                 // console.log(
                 //   "this is currentItem",
                 //   currentItem,
