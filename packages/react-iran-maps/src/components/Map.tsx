@@ -10,6 +10,24 @@ import { useGetProvinceMap } from "../hooks";
 import { getCountyName, getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
 
+const DEFAULT_COLOR_RANGE = [
+  "#E2FAFB",
+  "#C5F6FA",
+  "#A8F1F7",
+  "#8BECF5",
+  "#6EE7F2",
+  "#50E3F0",
+  "#33DEED",
+  "#16D9EB",
+  "#12C0CF",
+  "#10A5B2",
+  "#0E94A0",
+  "#0C848F",
+  "#0B737D",
+  "#09636B",
+  "#085259",
+];
+
 export function Map({
   isolateProvince = true,
   data,
@@ -35,6 +53,34 @@ export function Map({
   const [tooltipContent, setTooltipContent] = useState<string | undefined>(
     undefined
   );
+  console.log("this is provinceMap", provinceMap);
+
+  const getColor = (count?: number) => {
+    if (!count || count === 0) {
+      return "#fff";
+    }
+
+    const dataMap:
+      | Record<string, ProvinceMapItem>
+      | ProvinceMapItem
+      | undefined = selectedProvince
+      ? provinceMap[selectedProvince]
+      : provinceMap;
+
+    const values: number[] = Object.values(dataMap || {}).map(
+      (province) => province.count
+    );
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    if (values.length === 0) {
+      return "#fff";
+    }
+
+    return scaleLinear<string>()
+      .domain([min, max])
+      .range(colorScale || DEFAULT_COLOR_RANGE)(count);
+  };
 
   const allCounties = useAllCounties();
   const provinceGeometries = useGenerateProvinceGeometries();
@@ -416,39 +462,18 @@ export function Map({
                       setHoveredCount(null);
                     }}
                     onClick={() => handleClick(geo)}
+                    fill={getColor(provinceData?.count)}
+                    stroke="#093A3C"
+                    strokeWidth={0.5}
                     style={{
                       default: {
-                        fill: fillColor || defaultFill,
-                        stroke: "#FFF",
-                        strokeWidth: isOtherProvince ? 1.5 : 1,
-                        strokeLinejoin: "round",
-                        strokeLinecap: "round",
                         outline: "none",
-                        vectorEffect: "non-scaling-stroke",
-                        opacity: isOtherProvince ? 0.6 : 1,
-                      },
-                      hover: {
-                        fill: fillColor || defaultHoverFill,
-                        stroke: "#FFF",
-                        strokeWidth: isOtherProvince ? 1.5 : 1,
-                        strokeLinejoin: "round",
-                        strokeLinecap: "round",
-                        cursor: "pointer",
-                        outline: "none",
-                        vectorEffect: "non-scaling-stroke",
-                        opacity: isOtherProvince ? 0.7 : fillColor ? 0.8 : 1,
-                        filter: fillColor ? "brightness(0.9)" : undefined,
                       },
                       pressed: {
-                        fill: fillColor || defaultPressedFill,
-                        stroke: "#FFF",
-                        strokeWidth: isOtherProvince ? 1.5 : 1,
-                        strokeLinejoin: "round",
-                        strokeLinecap: "round",
                         outline: "none",
-                        vectorEffect: "non-scaling-stroke",
-                        opacity: isOtherProvince ? 0.7 : fillColor ? 0.7 : 1,
-                        filter: fillColor ? "brightness(0.8)" : undefined,
+                      },
+                      hover: {
+                        outline: "none",
                       },
                     }}
                   />
