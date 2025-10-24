@@ -1,6 +1,12 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import { geoBounds } from "d3-geo";
+import { geoBounds, geoCentroid } from "d3-geo";
 import { scaleLinear, scaleQuantize } from "d3-scale";
 
 import { useAllCounties } from "../lib/allCounties";
@@ -10,6 +16,7 @@ import { useGetProvinceMap } from "../hooks";
 import { getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
 import { Legend } from "./Legend";
+import { animate } from "motion";
 
 const DEFAULT_COLOR_RANGE = [
   "#AADBDD",
@@ -36,8 +43,10 @@ export function Map({
   const [hoveredGeography, setHoveredGeography] = useState<string | null>(null);
   const [hoveredCount, setHoveredCount] = useState<number | null>(null);
   const [zoom, setZoom] = useState(1);
-  const [scale, setScale] = useState(Math.min(width, height) * 3.4);
-  const [center, setCenter] = useState<[number, number]>([53.5, 32.5]);
+  const defaultScale = Math.min(width, height) * 3.4;
+  const [scale, setScale] = useState(defaultScale);
+  const defaultCenter = [53.5, 32.5] as [number, number];
+  const [center, setCenter] = useState<[number, number]>(defaultCenter);
   const [minRange, setMinRange] = useState<number>(0);
   const [maxRange, setMaxRange] = useState<number>(0);
 
@@ -82,39 +91,6 @@ export function Map({
 
   const allCounties = useAllCounties();
   const provinceGeometries = useGenerateProvinceGeometries();
-
-  // Calculate color scales based on data
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { provinceColorScale, countyColorScale } = useMemo(() => {
-    if (!data || data.length === 0) {
-      return {
-        provinceColorScale: null,
-        countyColorScale: null,
-      };
-    }
-
-    // Get min/max for provinces
-    const provinceCounts: number[] = Object.values(provinceMap).map(
-      (province) => province.count
-    );
-    const provinceMin = Math.min(...provinceCounts);
-    const provinceMax = Math.max(...provinceCounts);
-    const countyCounts: number[] = Object.values(provinceMap).flatMap(
-      (province) =>
-        Object.values(province.counties ?? {}).map((county) => county.count)
-    );
-    const countyMin = Math.min(...countyCounts);
-    const countyMax = Math.max(...countyCounts);
-
-    return {
-      provinceColorScale: scaleLinear<string>()
-        .domain([provinceMin, provinceMax])
-        .range(colorScale),
-      countyColorScale: scaleLinear<string>()
-        .domain([countyMin, countyMax])
-        .range(colorScale),
-    };
-  }, [data, provinceMap, colorScale]);
 
   // Current view data - uses displayedProvince to keep showing counties during zoom out
   const currentGeographies = useMemo(() => {
@@ -198,8 +174,8 @@ export function Map({
 
       if (selectedCounties.length === 0) {
         return {
-          optimalCenter: [53.5, 32.5] as [number, number],
-          optimalScale: 700,
+          optimalCenter: defaultCenter,
+          optimalScale: defaultScale,
         };
       }
 
@@ -227,7 +203,8 @@ export function Map({
 
       // Base scale for Iran is 700, multiply by zoom factor for province
       // Add a cap to prevent extreme zoom for very small provinces
-      const calculatedScale = 700 * Math.min(zoomFactor * 0.7, 4.5);
+      const calculatedScale =
+        defaultScale * 1.1 * Math.min(zoomFactor * 0.7, 4.5);
 
       return {
         optimalCenter: [centerLon, centerLat] as [number, number],
@@ -237,8 +214,8 @@ export function Map({
 
     // Default for provinces view
     return {
-      optimalCenter: [53.5, 32.5] as [number, number],
-      optimalScale: 700,
+      optimalCenter: defaultCenter,
+      optimalScale: defaultScale,
     };
   }, [selectedProvince, allCounties]);
 
@@ -261,44 +238,37 @@ export function Map({
   }, [selectedProvince]);
 
   // Animate scale and center to optimal values
+  const scaleRef = useRef(scale);
+  const centerRef = useRef(center);
+
   useEffect(() => {
-    const duration = 600; // Animation duration in ms
-    const startTime = Date.now();
-    const startScale = scale;
-    const startCenter = center;
+    // Animate Scale
+    animate(scaleRef.current, optimalScale, {
+      duration: 0.6,
+      onUpdate: (latest) => {
+        scaleRef.current = latest;
+        setScale(latest);
+      },
+    });
 
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+    // Animate Longitude
+    animate(centerRef.current[0], optimalCenter[0], {
+      duration: 0.6,
+      onUpdate: (latest) => {
+        centerRef.current = [latest, centerRef.current[1]];
+        setCenter([latest, centerRef.current[1]]);
+      },
+    });
 
-      // Easing function (ease-in-out)
-      const eased =
-        progress < 0.5
-          ? 2 * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 2) / 2;
-
-      // Interpolate scale
-      const newScale = startScale + (optimalScale - startScale) * eased;
-      // setScale(newScale);
-
-      // Interpolate center
-      const newCenter: [number, number] = [
-        startCenter[0] + (optimalCenter[0] - startCenter[0]) * eased,
-        startCenter[1] + (optimalCenter[1] - startCenter[1]) * eased,
-      ];
-      setCenter(newCenter);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // setScale(optimalScale);
-        setCenter(optimalCenter);
-      }
-    };
-
-    requestAnimationFrame(animate);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedProvince, optimalScale, optimalCenter]);
+    // Animate Latitude
+    animate(centerRef.current[1], optimalCenter[1], {
+      duration: 0.6,
+      onUpdate: (latest) => {
+        centerRef.current = [centerRef.current[0], latest];
+        setCenter([centerRef.current[0], latest]);
+      },
+    });
+  }, [optimalScale, optimalCenter]);
 
   // Calculate final scale based on animated scale and user zoom
   const finalScale = useMemo(() => {
@@ -327,8 +297,6 @@ export function Map({
     setZoom(newZoom);
   };
 
-  // Handle geography click
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleChangeProvince = (geo: any) => {
     setSelectedProvince(geo.properties.provincName || geo.properties.NAME_1);
   };
@@ -336,12 +304,15 @@ export function Map({
   // Handle back button
   const handleBack = () => {
     setSelectedProvince(null);
-    // Center and zoom will be handled by useEffect
   };
 
   return (
     <>
       <Tooltip />
+      <div style={{ position: "absolute", top: 0, left: 0 }}>
+        <span onClick={handleBack}>ایران</span>
+        {selectedProvince && <span>/{selectedProvince}</span>}
+      </div>
 
       <div
         data-tooltip-id="tooltip"
