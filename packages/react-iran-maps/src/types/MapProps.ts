@@ -20,7 +20,7 @@ export interface MapProps {
    * Custom color scale. Defaults to blue gradient.
    * Provide an array of colors [minColor, maxColor] for the gradient.
    */
-  colorScale?: [string, string];
+  colorScale?: string[];
 
   width?: number;
   height?: number;

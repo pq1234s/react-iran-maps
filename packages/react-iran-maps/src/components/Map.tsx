@@ -1,38 +1,29 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { geoBounds } from "d3-geo";
-import { scaleLinear } from "d3-scale";
+import { scaleLinear, scaleQuantize } from "d3-scale";
 
 import { useAllCounties } from "../lib/allCounties";
 import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
 import { MapProps, ProvinceMapItem } from "../types";
 import { useGetProvinceMap } from "../hooks";
-import { getCountyName, getProvinceName } from "../lib";
+import { getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
+import { Legend } from "./Legend";
 
 const DEFAULT_COLOR_RANGE = [
-  "#E2FAFB",
-  "#C5F6FA",
-  "#A8F1F7",
-  "#8BECF5",
-  "#6EE7F2",
-  "#50E3F0",
-  "#33DEED",
-  "#16D9EB",
-  "#12C0CF",
-  "#10A5B2",
-  "#0E94A0",
-  "#0C848F",
-  "#0B737D",
-  "#09636B",
-  "#085259",
+  "#AADBDD",
+  "#75C4C8",
+  "#37AAAF",
+  "#199DA3",
+  "#16898E",
 ];
 
 export function Map({
   isolateProvince = true,
   data,
   showOnlyWithData = false,
-  colorScale = ["#E0F2FE", "#0369A1"],
+  colorScale = DEFAULT_COLOR_RANGE,
   renderTooltipContent,
   width = 800,
   height = 600,
@@ -50,21 +41,26 @@ export function Map({
   const [minRange, setMinRange] = useState<number>(0);
   const [maxRange, setMaxRange] = useState<number>(0);
 
+  console.log("this is min max range", minRange, maxRange);
+
   const provinceMap = useGetProvinceMap(data);
   const [tooltipContent, setTooltipContent] = useState<string | undefined>(
     undefined
   );
 
+  const legendScale = scaleQuantize<string>()
+    .domain([minRange, maxRange])
+    .range(colorScale);
+
   const getColor = useCallback(
     (count?: number) => {
-      console.log("this is count", count);
       if (!count || count === 0) {
         return "#fff";
       }
 
-      return scaleLinear<string>()
+      return scaleQuantize<string>()
         .domain([minRange, maxRange])
-        .range(colorScale || DEFAULT_COLOR_RANGE)(count);
+        .range(colorScale)(count);
     },
     [minRange, maxRange, colorScale]
   );
@@ -392,13 +388,13 @@ export function Map({
                         ]
                       : provinceMap[provinceName];
                 }
-                console.log(
-                  "this is currentItem",
-                  currentItem,
-                  geo,
-                  selectedProvince,
-                  geo.properties.cityName
-                );
+                // console.log(
+                //   "this is currentItem",
+                //   currentItem,
+                //   geo,
+                //   selectedProvince,
+                //   geo.properties.cityName
+                // );
                 // console.log(
                 //   "this is currentItem",
                 //   currentItem,
@@ -450,6 +446,7 @@ export function Map({
             }
           </Geographies>
         </ComposableMap>
+        <Legend colorScale={legendScale} />
       </div>
     </>
   );

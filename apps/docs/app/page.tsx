@@ -20,7 +20,6 @@ export default function Home() {
             height={600}
             aspectRatio="1.23"
             data={mockProvinceData}
-            colorScale={["#E0F2FE", "#1E3A8A"]}
           />
         </div>
       </main>
