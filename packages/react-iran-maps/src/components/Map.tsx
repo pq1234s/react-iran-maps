@@ -47,24 +47,31 @@ export function Map({
   const [zoom, setZoom] = useState(1);
   const [scale, setScale] = useState(Math.min(width, height) * 3.4);
   const [center, setCenter] = useState<[number, number]>([53.5, 32.5]);
+  const [minRange, setMinRange] = useState<number>(0);
+  const [maxRange, setMaxRange] = useState<number>(0);
 
-  console.log("this is data", data);
   const provinceMap = useGetProvinceMap(data);
   const [tooltipContent, setTooltipContent] = useState<string | undefined>(
     undefined
   );
-  console.log("this is provinceMap", provinceMap);
+  console.log("this is provinceMap", selectedProvince);
 
   const getColor = (count?: number) => {
     if (!count || count === 0) {
       return "#fff";
     }
 
+    return scaleLinear<string>()
+      .domain([minRange, maxRange])
+      .range(colorScale || DEFAULT_COLOR_RANGE)(count);
+  };
+
+  useEffect(() => {
     const dataMap:
       | Record<string, ProvinceMapItem>
       | ProvinceMapItem
       | undefined = selectedProvince
-      ? provinceMap[selectedProvince]
+      ? provinceMap[selectedProvince]?.counties
       : provinceMap;
 
     const values: number[] = Object.values(dataMap || {}).map(
@@ -72,15 +79,9 @@ export function Map({
     );
     const min = Math.min(...values);
     const max = Math.max(...values);
-
-    if (values.length === 0) {
-      return "#fff";
-    }
-
-    return scaleLinear<string>()
-      .domain([min, max])
-      .range(colorScale || DEFAULT_COLOR_RANGE)(count);
-  };
+    setMinRange(min);
+    setMaxRange(max);
+  }, [selectedProvince]);
 
   const allCounties = useAllCounties();
   const provinceGeometries = useGenerateProvinceGeometries();
@@ -304,8 +305,6 @@ export function Map({
 
   // Calculate final scale based on animated scale and user zoom
   const finalScale = useMemo(() => {
-    console.log("scale", scale);
-    console.log("zoom", zoom);
     return scale * zoom;
   }, [scale, zoom]);
 
@@ -333,17 +332,8 @@ export function Map({
 
   // Handle geography click
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleClick = (geo: any) => {
-    if (selectedProvince) {
-      // If viewing counties, do nothing (could show county details)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const countyName = geo.properties.cityName || geo.properties.NAME_2;
-    } else {
-      // If viewing provinces, drill down to counties
-      const provinceName = geo.properties.provincName || geo.properties.NAME_1;
-      setSelectedProvince(provinceName);
-      // Center and zoom will be handled by useEffect
-    }
+  const handleChangeProvince = (geo: any) => {
+    setSelectedProvince(geo.properties.provincName || geo.properties.NAME_1);
   };
 
   // Handle back button
@@ -351,8 +341,6 @@ export function Map({
     setSelectedProvince(null);
     // Center and zoom will be handled by useEffect
   };
-
-  console.log("tooltipContent", tooltipContent);
 
   return (
     <>
@@ -388,57 +376,27 @@ export function Map({
           >
             {({ geographies }) =>
               geographies.map((geo) => {
-                // Determine geography type
-                const geoProvinceName = getProvinceName(geo);
-                const isCounty = !!getCountyName(geo);
-                const isSelectedProvinceCounty =
-                  displayedProvince &&
-                  isCounty &&
-                  geoProvinceName === displayedProvince;
-                const isOtherProvince =
-                  displayedProvince &&
-                  !isCounty &&
-                  geoProvinceName !== displayedProvince;
-                const isProvince = !displayedProvince;
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const name = isCounty
-                  ? geo.properties.cityName || geo.properties.NAME_2 // County name
-                  : geo.properties.provincName || geo.properties.NAME_1; // Province name
-
-                // Get data count and color for this geography
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Placeholder for future data visualization
-                const dataCount: number | null = null;
-                const fillColor: string | null = null;
-
-                // Default colors (used when no data or no color calculated)
-                const defaultFill = isSelectedProvinceCounty
-                  ? "#CBD5E1"
-                  : isOtherProvince
-                    ? "#F1F5F9"
-                    : isProvince
-                      ? "#E2E8F0"
-                      : "#CBD5E1";
-
-                const defaultHoverFill = isSelectedProvinceCounty
-                  ? "#10B981"
-                  : isOtherProvince
-                    ? "#E2E8F0"
-                    : "#3B82F6";
-
-                const defaultPressedFill = isSelectedProvinceCounty
-                  ? "#047857"
-                  : isOtherProvince
-                    ? "#CBD5E1"
-                    : "#1E40AF";
                 const provinceName = getProvinceName(
                   geo,
                   data?.[0]?.name.match(/\w+/g) ? "en" : "fa"
                 );
-                let provinceData: ProvinceMapItem | undefined;
+                let currentItem: ProvinceMapItem | undefined;
                 if (provinceName) {
-                  provinceData = provinceMap[provinceName];
+                  currentItem = selectedProvince
+                    ? provinceMap[selectedProvince]?.counties?.[
+                        geo.properties.cityName
+                      ]
+                    : provinceMap[provinceName];
                 }
+                console.log("this is provinceMap", provinceMap, geo);
+                // console.log(
+                //   "this is currentItem",
+                //   currentItem,
+                //   provinceName,
+                //   provinceMap,
+                //   selectedProvince,
+                //   provinceMap?.[selectedProvince ?? ""]
+                // );
 
                 return (
                   <Geography
@@ -447,11 +405,11 @@ export function Map({
                     onMouseEnter={() => {
                       setTooltipContent(
                         renderTooltipContent
-                          ? renderTooltipContent(provinceData, geo)
-                          : provinceData?.count
+                          ? renderTooltipContent(currentItem, geo)
+                          : currentItem?.count
                             ? `<div>
                               <div>${geo.properties.provincName}</div>
-                              <div>${provinceData?.count || 0} :تعداد</div>
+                              <div>${currentItem?.count || 0} :تعداد</div>
                             </div>`
                             : `${geo.properties.provincName}`
                       );
@@ -461,8 +419,8 @@ export function Map({
                       setHoveredGeography(null);
                       setHoveredCount(null);
                     }}
-                    onClick={() => handleClick(geo)}
-                    fill={getColor(provinceData?.count)}
+                    onClick={() => handleChangeProvince(geo)}
+                    fill={getColor(currentItem?.count)}
                     stroke="#093A3C"
                     strokeWidth={0.5}
                     style={{
