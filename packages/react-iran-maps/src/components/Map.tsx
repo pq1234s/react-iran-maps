@@ -6,8 +6,8 @@ import React, {
   useRef,
 } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import { geoBounds, geoCentroid } from "d3-geo";
-import { scaleLinear, scaleQuantize } from "d3-scale";
+import { geoBounds } from "d3-geo";
+import { scaleQuantize } from "d3-scale";
 
 import { useAllCounties } from "../lib/allCounties";
 import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
@@ -40,8 +40,7 @@ export function Map({
   const [displayedProvince, setDisplayedProvince] = useState<string | null>(
     null
   );
-  const [hoveredGeography, setHoveredGeography] = useState<string | null>(null);
-  const [hoveredCount, setHoveredCount] = useState<number | null>(null);
+
   const [zoom, setZoom] = useState(1);
   const defaultScale = Math.min(width, height) * 3.4;
   const [scale, setScale] = useState(defaultScale);
@@ -275,28 +274,6 @@ export function Map({
     return scale * zoom;
   }, [scale, zoom]);
 
-  // Zoom handlers
-  const handleZoomIn = () => {
-    setZoom((prevZoom) => Math.min(prevZoom * 1.5, 10)); // Max 10x zoom
-  };
-
-  const handleZoomOut = () => {
-    setZoom((prevZoom) => Math.max(prevZoom / 1.5, 0.5)); // Min 0.5x zoom
-  };
-
-  const handleResetZoom = () => {
-    setZoom(1);
-    // Center will be at optimal/target position already
-  };
-
-  // Handle mouse wheel zoom
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const delta = event.deltaY * -0.001;
-    const newZoom = Math.min(Math.max(zoom * (1 + delta), 0.5), 10);
-    setZoom(newZoom);
-  };
-
   const handleChangeProvince = (geo: any) => {
     setSelectedProvince(geo.properties.provincName || geo.properties.NAME_1);
   };
@@ -374,8 +351,6 @@ export function Map({
                     }}
                     onMouseLeave={() => {
                       setTooltipContent("");
-                      setHoveredGeography(null);
-                      setHoveredCount(null);
                     }}
                     onClick={() => handleChangeProvince(geo)}
                     fill={getColor(currentItem?.count)}
