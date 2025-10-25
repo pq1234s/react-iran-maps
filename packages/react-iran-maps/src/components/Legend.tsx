@@ -3,11 +3,21 @@ import React from "react";
 export function Legend({ colorScale }: any) {
   const range = colorScale.range();
 
+  const lastIndex = range.length - 1;
+  const firstIndex = 0;
+
+  const [min] = colorScale.invertExtent(range[firstIndex]);
+  const [_, max] = colorScale.invertExtent(range[lastIndex]);
+
+  if (!min && !max) {
+    return null;
+  }
+
   return (
     <div
       style={{
         display: "flex",
-        gap: 4,
+        gap: 12,
         marginTop: 12,
         fontSize: 12,
         position: "absolute",
@@ -15,28 +25,22 @@ export function Legend({ colorScale }: any) {
         right: 0,
       }}
     >
-      {range.map((color: string, i: number) => {
-        const [min, max] = colorScale.invertExtent(color);
-
-        return (
-          <div key={i} style={{ textAlign: "center" }}>
-            {/* رنگ بازه */}
-            <div
-              style={{
-                width: 24,
-                height: 14,
-                backgroundColor: color,
-                border: "1px solid #ccc",
-              }}
-            />
-
-            {/* بازه مقداری */}
-            <div style={{ width: 40 }}>
-              {Math.round(min)} — {Math.round(max)}
-            </div>
-          </div>
-        );
-      })}
+      {min && <div>کمترین: {Intl.NumberFormat().format(min)} مطلب</div>}
+      <div
+        style={{
+          display: "flex",
+          borderRadius: 4,
+          overflow: "hidden",
+        }}
+      >
+        {range.map((color: string, index: number) => (
+          <div
+            key={index}
+            style={{ width: 37, height: 13, backgroundColor: color }}
+          />
+        ))}
+      </div>
+      {max && <div>بیشترین: {Intl.NumberFormat().format(max)} مطلب</div>}
     </div>
   );
 }
