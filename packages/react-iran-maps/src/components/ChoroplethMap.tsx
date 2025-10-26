@@ -30,7 +30,6 @@ const DEFAULT_COLOR_RANGE = [
 export function ChoroplethMap({
   drilldown = false,
   data,
-  showOnlyWithData = false,
   renderTooltipContent,
   width = 800,
   height = 600,
@@ -125,41 +124,14 @@ export function ChoroplethMap({
       geographies = provinceGeometries;
     }
 
-    // Filter by data if showOnlyWithData is true
-    if (showOnlyWithData && data) {
-      if (displayedProvince) {
-        // Filter counties
-        geographies = geographies.filter((geo) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const props = geo.properties as any;
-          const isCounty = !!props.cityName || !!props.NAME_2;
-          if (isCounty) {
-            const countyName = props.cityName || props.NAME_2;
-            const provinceName = props.provincName || props.NAME_1;
-            return `${provinceName}:${countyName}` in provinceMap;
-          }
-          // Keep provinces in non-isolate mode
-          return true;
-        });
-      } else {
-        // Filter provinces
-        geographies = geographies.filter((geo) => {
-          const provinceName =
-            geo.properties.provincName || geo.properties.NAME_1 || "";
-          return provinceName in provinceMap;
-        });
-      }
-    }
+    geographies = geographies.filter((geo) => {
+      const provinceName =
+        geo.properties.provincName || geo.properties.NAME_1 || "";
+      return provinceName in provinceMap;
+    });
 
     return geographies;
-  }, [
-    displayedProvince,
-    allCounties,
-    provinceGeometries,
-    showOnlyWithData,
-    data,
-    provinceMap,
-  ]);
+  }, [displayedProvince, allCounties, provinceGeometries, provinceMap]);
 
   // Calculate optimal center and scale for current view
   const { optimalCenter, optimalScale } = useMemo(() => {

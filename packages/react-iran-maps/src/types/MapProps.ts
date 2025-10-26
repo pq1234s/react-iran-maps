@@ -36,16 +36,6 @@ export interface ChoroplethMapProps {
    * Data to display on the map with counts for provinces and counties
    */
   data?: ProvinceData[];
-  /**
-   * When true, only shows provinces/counties that have data.
-   * When false (default), shows all provinces/counties with data-based coloring.
-   */
-  showOnlyWithData?: boolean;
-  /**
-   * Custom color scale. Defaults to blue gradient.
-   * Provide an array of colors [minColor, maxColor] for the gradient.
-   */
-  colorScale?: string[];
 
   /**
    * Width of the map.
