@@ -25,7 +25,7 @@ export function QuantitativeLegend({ scale }: any) {
         right: 0,
       }}
     >
-      {min && <div>کمترین: {Intl.NumberFormat().format(min)} مطلب</div>}
+      {min && <div>کمترین: {Intl.NumberFormat("fa-IR").format(min)} مطلب</div>}
       <div
         style={{
           display: "flex",
@@ -40,7 +40,7 @@ export function QuantitativeLegend({ scale }: any) {
           />
         ))}
       </div>
-      {max && <div>بیشترین: {Intl.NumberFormat().format(max)} مطلب</div>}
+      {max && <div>بیشترین: {Intl.NumberFormat("fa-IR").format(max)} مطلب</div>}
     </div>
   );
 }

@@ -366,7 +366,7 @@ export function ChoroplethMap({
                           ? renderTooltipContent(currentItem, geo)
                           : `<div>
                               <div>${selectedProvince ? geo.properties.cityName : geo.properties.provincName}</div>
-                             ${legend?.mode === "quantitative" ? `<div>${currentItem?.value || 0} :تعداد</div>` : `<div>دسته: ${currentItem?.value || "نامشخص"}</div>`} 
+                             ${legend?.mode === "quantitative" ? `<div>${Intl.NumberFormat("fa-IR").format((currentItem?.value as number) || 0)} :تعداد</div>` : `<div>دسته: ${currentItem?.value || "نامشخص"}</div>`} 
                             </div>`
                       );
                     }}

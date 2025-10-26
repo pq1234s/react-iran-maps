@@ -36,6 +36,7 @@ export default function Home() {
                 width={800}
                 height={600}
                 aspectRatio="1.23"
+                drilldown
                 data={mockProvinceData}
                 legend={{
                   mode: "quantitative",
