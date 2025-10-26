@@ -17,6 +17,7 @@ import { getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
 import { Legend } from "./Legend";
 import { animate } from "motion";
+import { Breadcrumbs } from "./Breadcrumbs";
 
 const DEFAULT_COLOR_RANGE = [
   "#AADBDD",
@@ -303,11 +304,12 @@ export function Map({
   return (
     <>
       {!disableTooltip && <Tooltip />}
-      <div style={{ position: "absolute", top: 0, left: 0 }}>
-        <span onClick={handleBack}>ایران</span>
-        {selectedProvince && <span>/{selectedProvince}</span>}
-      </div>
-
+      {selectedProvince && (
+        <Breadcrumbs
+          selectedProvince={selectedProvince}
+          handleBack={handleBack}
+        />
+      )}
       <div
         data-tooltip-id="tooltip"
         data-tooltip-html={tooltipContent ?? ""}
