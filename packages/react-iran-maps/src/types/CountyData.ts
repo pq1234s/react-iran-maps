@@ -1,6 +1,6 @@
 export interface CountyData {
   name: string;
-  count: number;
+  value?: string | number;
 }
 
 export type CountyMapItem = Record<string, CountyData>;

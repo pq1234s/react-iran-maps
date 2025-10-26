@@ -3,8 +3,8 @@ export interface CountyFeature {
   properties: {
     // Core fields (used in the app)
     provincName?: string; // Province name in Persian (e.g., "تهران")
-    cityName?: string; // City/County name in Persian (e.g., "شهریار")
-    NAME_1?: string; // Province name in English (e.g., "Tehran")
+    cityName: string; // City/County name in Persian (e.g., "شهریار")
+    NAME_1: string; // Province name in English (e.g., "Tehran")
     NAME_2?: string; // City name in Latin script (transliterated)
     // Geometry fields
     area?: number;

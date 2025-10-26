@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { geoBounds } from "d3-geo";
-import { scaleQuantize } from "d3-scale";
+import { scaleOrdinal, scaleQuantize } from "d3-scale";
 
 import { useAllCounties } from "../lib/allCounties";
 import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
@@ -30,16 +30,18 @@ export function Map({
   isolateProvince = true,
   data,
   showOnlyWithData = false,
-  colorScale = DEFAULT_COLOR_RANGE,
   renderTooltipContent,
   width = 800,
   height = 600,
   aspectRatio = "1.23",
+  legend,
 }: MapProps) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [displayedProvince, setDisplayedProvince] = useState<string | null>(
     null
   );
+
+  const colorScale = legend?.colors || DEFAULT_COLOR_RANGE;
 
   const [zoom, setZoom] = useState(1);
   const defaultScale = Math.min(width, height) * 3.4;
@@ -54,38 +56,52 @@ export function Map({
     undefined
   );
 
-  const legendScale = scaleQuantize<string>()
-    .domain([minRange, maxRange])
-    .range(colorScale);
+  const legendScale =
+    legend?.mode === "qualitative"
+      ? scaleOrdinal()
+          .domain(legend?.items?.map((item) => item.value))
+          .range(legend?.items?.map((item) => item.color))
+      : scaleQuantize<string>().domain([minRange, maxRange]).range(colorScale);
 
   const getColor = useCallback(
-    (count?: number) => {
-      if (!count || count === 0) {
+    (value?: number | string) => {
+      if (!value || value === 0) {
         return "#fff";
       }
 
-      return scaleQuantize<string>()
-        .domain([minRange, maxRange])
-        .range(colorScale)(count);
+      if (legend?.mode === "qualitative") {
+        return scaleOrdinal()
+          .domain(legend?.items?.map((item) => item.value))
+          .range(legend?.items?.map((item) => item.color))(value as string);
+      }
+
+      if (typeof value === "number") {
+        return scaleQuantize<string>()
+          .domain([minRange, maxRange])
+          .range(colorScale)(value);
+      }
     },
     [minRange, maxRange, colorScale]
   );
 
   useEffect(() => {
-    const dataMap:
-      | Record<string, ProvinceMapItem>
-      | ProvinceMapItem
-      | undefined = selectedProvince
-      ? provinceMap[selectedProvince]?.counties
-      : provinceMap;
+    if (legend?.mode === "quantitative") {
+      const dataMap:
+        | Record<string, ProvinceMapItem>
+        | ProvinceMapItem
+        | undefined = selectedProvince
+        ? provinceMap[selectedProvince]?.counties
+        : provinceMap;
 
-    const values: number[] = Object.values(dataMap || {}).map(
-      (province) => province.count
-    );
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    setMinRange(min);
-    setMaxRange(max);
+      const values: number[] = Object.values(dataMap || {}).map(
+        (province) => +(province.value ?? 0)
+      );
+
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      setMinRange(min);
+      setMaxRange(max);
+    }
   }, [selectedProvince]);
 
   const allCounties = useAllCounties();
@@ -345,7 +361,7 @@ export function Map({
                           ? renderTooltipContent(currentItem, geo)
                           : `<div>
                               <div>${selectedProvince ? geo.properties.cityName : geo.properties.provincName}</div>
-                              <div>${currentItem?.count || 0} :تعداد</div>
+                             ${legend?.mode === "quantitative" ? `<div>${currentItem?.value || 0} :تعداد</div>` : `<div>دسته: ${currentItem?.value || "نامشخص"}</div>`} 
                             </div>`
                       );
                     }}
@@ -353,7 +369,7 @@ export function Map({
                       setTooltipContent("");
                     }}
                     onClick={() => handleChangeProvince(geo)}
-                    fill={getColor(currentItem?.count)}
+                    fill={getColor(currentItem?.value) as string}
                     stroke="#093A3C"
                     strokeWidth={0.5}
                     style={{
@@ -373,7 +389,7 @@ export function Map({
             }
           </Geographies>
         </ComposableMap>
-        <Legend colorScale={legendScale} />
+        {legend?.mode === "quantitative" && <Legend colorScale={legendScale} />}
       </div>
     </>
   );

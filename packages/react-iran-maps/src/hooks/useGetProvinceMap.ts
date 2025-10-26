@@ -14,7 +14,7 @@ export function useGetProvinceMap(data?: ProvinceData[]) {
     if (data) {
       data.forEach((province) => {
         provinceMap[province.name] = {
-          count: province.count,
+          value: province.value,
           name: province.name,
           counties: province.counties
             ? province.counties.reduce((countyMap: CountyMapItem, county) => {

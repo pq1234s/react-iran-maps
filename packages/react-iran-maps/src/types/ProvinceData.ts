@@ -2,12 +2,12 @@ import { CountyData } from "./CountyData";
 
 export interface ProvinceData {
   name: string;
-  count: number;
+  value?: string | number;
   counties?: CountyData[];
 }
 
 export interface ProvinceMapItem {
   name: string;
-  count: number;
+  value?: string | number;
   counties?: Record<string, CountyData>;
 }

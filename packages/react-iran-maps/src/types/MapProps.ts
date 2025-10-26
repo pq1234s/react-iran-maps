@@ -1,6 +1,26 @@
 import { CountyFeature } from "./CountyFeature";
 import { ProvinceData, ProvinceMapItem } from "./ProvinceData";
 
+interface LegendItem {
+  label: string;
+  value: string;
+  color: string;
+}
+
+interface QuantitativeLegend {
+  mode: "quantitative";
+  colors: string[]; // ✅ required
+  items?: never; // ❌ not allowed when quantitative
+}
+
+interface QualitativeLegend {
+  mode: "qualitative";
+  items: LegendItem[]; // ✅ required
+  colors?: never; // ❌ not allowed when qualitative
+}
+
+type LegendConfig = QuantitativeLegend | QualitativeLegend;
+
 export interface MapProps {
   /**
    * When true (default), drilling down shows only the selected province's counties.
@@ -26,6 +46,8 @@ export interface MapProps {
   height?: number;
 
   aspectRatio?: string;
+
+  legend?: LegendConfig;
 
   renderTooltipContent?: (
     provinceData?: ProvinceMapItem,
