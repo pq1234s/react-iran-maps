@@ -23,6 +23,10 @@ type LegendConfig = QuantitativeLegend | QualitativeLegend;
 
 export interface MapProps {
   /**
+   * When true, the tooltip is disabled.
+   */
+  disableTooltip?: boolean;
+  /**
    * When true (default), drilling down shows only the selected province's counties.
    * When false, drilling down zooms to the province but still shows all other provinces.
    */
@@ -42,13 +46,28 @@ export interface MapProps {
    */
   colorScale?: string[];
 
+  /**
+   * Width of the map.
+   */
   width?: number;
+  /**
+   * Height of the map.
+   */
   height?: number;
 
+  /**
+   * Aspect ratio of the map.
+   */
   aspectRatio?: string;
 
+  /**
+   * Legend configuration.
+   */
   legend?: LegendConfig;
 
+  /**
+   * Custom tooltip content.
+   */
   renderTooltipContent?: (
     provinceData?: ProvinceMapItem,
     geo?: CountyFeature

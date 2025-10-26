@@ -34,6 +34,7 @@ export function Map({
   width = 800,
   height = 600,
   aspectRatio = "1.23",
+  disableTooltip = false,
   legend,
 }: MapProps) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
@@ -301,7 +302,7 @@ export function Map({
 
   return (
     <>
-      <Tooltip />
+      {!disableTooltip && <Tooltip />}
       <div style={{ position: "absolute", top: 0, left: 0 }}>
         <span onClick={handleBack}>ایران</span>
         {selectedProvince && <span>/{selectedProvince}</span>}
@@ -356,6 +357,7 @@ export function Map({
                     key={geo.rsmKey}
                     geography={geo}
                     onMouseEnter={() => {
+                      if (disableTooltip) return;
                       setTooltipContent(
                         renderTooltipContent
                           ? renderTooltipContent(currentItem, geo)
@@ -366,6 +368,7 @@ export function Map({
                       );
                     }}
                     onMouseLeave={() => {
+                      if (disableTooltip) return;
                       setTooltipContent("");
                     }}
                     onClick={() => handleChangeProvince(geo)}
