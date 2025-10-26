@@ -8,14 +8,14 @@ interface LegendItem {
 }
 
 interface QuantitativeLegend {
-  disable: boolean;
+  disable?: boolean;
   mode: "quantitative";
   colors: string[]; // ✅ required
   items?: never; // ❌ not allowed when quantitative
 }
 
 interface QualitativeLegend {
-  disable: boolean;
+  disable?: boolean;
   mode: "qualitative";
   items: LegendItem[]; // ✅ required
   colors?: never; // ❌ not allowed when qualitative
@@ -23,7 +23,11 @@ interface QualitativeLegend {
 
 type LegendConfig = QuantitativeLegend | QualitativeLegend;
 
-export interface MapProps {
+export interface ChoroplethMapProps {
+  /**
+   * When true, drilling down is enabled.
+   */
+  drilldown?: boolean;
   /**
    * When true, the tooltip is disabled.
    */

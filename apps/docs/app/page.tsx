@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./page.module.css";
-import { Map } from "react-iran-maps";
+import { ChoroplethMap } from "react-iran-maps";
 import { mockProvinceData } from "./mockProvinceData";
 import { mockCategoricalData } from "./mockCategoricalData";
 
@@ -32,7 +32,7 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
-              <Map
+              <ChoroplethMap
                 width={800}
                 height={600}
                 aspectRatio="1.23"
@@ -66,12 +66,14 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
-              <Map
+              <ChoroplethMap
                 width={800}
                 height={600}
                 aspectRatio="1.23"
                 data={mockCategoricalData}
+                disableTooltip
                 legend={{
+                  disable: true,
                   mode: "qualitative",
                   items: [
                     { value: "پایین", color: "#e8f5e9", label: "پایین" },
@@ -98,7 +100,7 @@ export default function Home() {
                 overflow: "hidden",
               }}
             >
-              <Map
+              <ChoroplethMap
                 width={800}
                 height={600}
                 aspectRatio="1.23"

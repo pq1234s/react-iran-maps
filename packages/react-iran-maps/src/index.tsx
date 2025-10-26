@@ -1,2 +1,2 @@
-export * from "./components/Map";
+export * from "./components/ChoroplethMap";
 export * from "./types";

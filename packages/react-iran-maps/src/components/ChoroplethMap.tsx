@@ -11,7 +11,7 @@ import { scaleOrdinal, scaleQuantize } from "d3-scale";
 
 import { useAllCounties } from "../lib/allCounties";
 import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
-import { MapProps, ProvinceMapItem } from "../types";
+import { ChoroplethMapProps, ProvinceMapItem } from "../types";
 import { useGetProvinceMap } from "../hooks";
 import { getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
@@ -27,7 +27,8 @@ const DEFAULT_COLOR_RANGE = [
   "#16898E",
 ];
 
-export function Map({
+export function ChoroplethMap({
+  drilldown = false,
   isolateProvince = true,
   data,
   showOnlyWithData = false,
@@ -37,7 +38,7 @@ export function Map({
   aspectRatio = "1.23",
   disableTooltip = false,
   legend,
-}: MapProps) {
+}: ChoroplethMapProps) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [displayedProvince, setDisplayedProvince] = useState<string | null>(
     null
@@ -373,7 +374,9 @@ export function Map({
                       if (disableTooltip) return;
                       setTooltipContent("");
                     }}
-                    onClick={() => handleChangeProvince(geo)}
+                    onClick={
+                      !drilldown ? undefined : () => handleChangeProvince(geo)
+                    }
                     fill={getColor(currentItem?.value) as string}
                     stroke="#093A3C"
                     strokeWidth={0.5}
