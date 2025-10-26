@@ -15,7 +15,7 @@ import { MapProps, ProvinceMapItem } from "../types";
 import { useGetProvinceMap } from "../hooks";
 import { getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
-import { Legend } from "./Legend";
+import { QualitativeLegend, QuantitativeLegend } from "./Legend";
 import { animate } from "motion";
 import { Breadcrumbs } from "./Breadcrumbs";
 
@@ -394,7 +394,12 @@ export function Map({
             }
           </Geographies>
         </ComposableMap>
-        {legend?.mode === "quantitative" && <Legend colorScale={legendScale} />}
+        {!legend?.disable && legend?.mode === "quantitative" && (
+          <QuantitativeLegend scale={legendScale} />
+        )}
+        {!legend?.disable && legend?.mode === "qualitative" && (
+          <QualitativeLegend scale={legendScale} />
+        )}
       </div>
     </>
   );

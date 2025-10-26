@@ -8,12 +8,14 @@ interface LegendItem {
 }
 
 interface QuantitativeLegend {
+  disable: boolean;
   mode: "quantitative";
   colors: string[]; // ✅ required
   items?: never; // ❌ not allowed when quantitative
 }
 
 interface QualitativeLegend {
+  disable: boolean;
   mode: "qualitative";
   items: LegendItem[]; // ✅ required
   colors?: never; // ❌ not allowed when qualitative
