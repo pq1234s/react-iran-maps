@@ -33,11 +33,6 @@ export interface ChoroplethMapProps {
    */
   disableTooltip?: boolean;
   /**
-   * When true (default), drilling down shows only the selected province's counties.
-   * When false, drilling down zooms to the province but still shows all other provinces.
-   */
-  isolateProvince?: boolean;
-  /**
    * Data to display on the map with counts for provinces and counties
    */
   data?: ProvinceData[];

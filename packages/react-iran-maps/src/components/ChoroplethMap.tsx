@@ -29,7 +29,6 @@ const DEFAULT_COLOR_RANGE = [
 
 export function ChoroplethMap({
   drilldown = false,
-  isolateProvince = true,
   data,
   showOnlyWithData = false,
   renderTooltipContent,
@@ -115,29 +114,12 @@ export function ChoroplethMap({
     let geographies;
 
     if (displayedProvince) {
-      if (isolateProvince) {
-        // Show only counties for selected province
-        geographies = allCounties.filter((county) => {
-          const countyProvinceName =
-            county.properties.provincName || county.properties.NAME_1;
-          return countyProvinceName === displayedProvince;
-        });
-      } else {
-        // Show selected province counties + other provinces
-        const selectedCounties = allCounties.filter((county) => {
-          const countyProvinceName =
-            county.properties.provincName || county.properties.NAME_1;
-          return countyProvinceName === displayedProvince;
-        });
-
-        const otherProvinces = provinceGeometries.filter(
-          (province) =>
-            (province.properties.provincName || province.properties.NAME_1) !==
-            displayedProvince
-        );
-
-        geographies = [...selectedCounties, ...otherProvinces];
-      }
+      // Show only counties for selected province
+      geographies = allCounties.filter((county) => {
+        const countyProvinceName =
+          county.properties.provincName || county.properties.NAME_1;
+        return countyProvinceName === displayedProvince;
+      });
     } else {
       // Show provinces
       geographies = provinceGeometries;
@@ -174,7 +156,6 @@ export function ChoroplethMap({
     displayedProvince,
     allCounties,
     provinceGeometries,
-    isolateProvince,
     showOnlyWithData,
     data,
     provinceMap,
