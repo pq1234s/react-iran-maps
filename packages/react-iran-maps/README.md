@@ -4,15 +4,20 @@ Create powerful and interactive React SVG maps of Iran based on d3-geo, react-si
 
 [![npm version](https://img.shields.io/npm/v/react-iran-maps.svg)](https://www.npmjs.com/package/react-iran-maps) [![npm downloads](https://img.shields.io/npm/dm/react-iran-maps.svg)](https://www.npmjs.com/package/react-iran-maps) [![bundle size](https://img.shields.io/bundlephobia/minzip/react-iran-maps) ![minified](https://badgen.net/bundlephobia/min/react-iran-maps)](https://bundlephobia.com/package/react-iran-maps) [![license](https://img.shields.io/github/license/rezasohrabi/react-iran-maps)](LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-5.9%2B-blue)](https://www.typescriptlang.org/) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/rezasohrabi/react-iran-maps/pulls)
 
+![Demo](demo.gif)
+
 ## Features
 
-✨ **Interactive Maps** - Click to drill down from provinces to counties  
-🗺️ **Complete Coverage** - All 31 provinces and 429+ counties of Iran  
-📊 **TopoJSON Based** - Lightweight and efficient geo data  
-🎨 **Customizable Styling** - Full control over colors, hover effects, and interactions  
-🌍 **Persian & English Support** - Bilingual property names  
-⚡ **TypeScript Support** - Fully typed components and interfaces  
-📱 **Responsive** - Works on all screen sizes
+✨ **Interactive Maps** - Click to drill down from provinces to counties
+🗺️ **Complete Coverage** - All 31 provinces and 429+ counties of Iran
+📊 **TopoJSON Based** - Lightweight and efficient geo data
+🎨 **Dual Legend Modes** - Quantitative (numeric) and Qualitative (categorical) data visualization
+🌈 **Customizable Colors** - Full control over color gradients and category colors
+🎯 **Smart Tooltips** - Built-in tooltips with custom content rendering
+🎬 **Smooth Animations** - Fluid transitions powered by Motion library
+🌍 **Persian & English Support** - Bilingual property names
+⚡ **TypeScript Support** - Fully typed components and interfaces
+📱 **Responsive** - Works on all screen sizes with configurable aspect ratio
 
 ## Installation
 
@@ -27,12 +32,12 @@ yarn add react-iran-maps
 ## Quick Start
 
 ```tsx
-import { Map } from "react-iran-maps";
+import { ChoroplethMap } from "react-iran-maps";
 
 function App() {
   return (
     <div style={{ width: "100%", height: "600px" }}>
-      <Map />
+      <ChoroplethMap />
     </div>
   );
 }
@@ -42,90 +47,140 @@ function App() {
 
 ### Basic Map
 
-Display an interactive map of Iran with all provinces:
+Display a static map of Iran with all provinces (no drill-down):
 
 ```tsx
-import { Map } from "react-iran-maps";
+import { ChoroplethMap } from "react-iran-maps";
 
-export default function IranMap() {
+export default function BasicMap() {
   return (
     <div style={{ width: "800px", height: "600px" }}>
-      <Map />
+      <ChoroplethMap />
     </div>
   );
 }
 ```
 
-### Isolation Modes
+### Interactive Map with Drill-Down
 
-The map supports two isolation modes via the `isolateProvince` prop:
-
-#### Isolated Mode (Default)
+Enable interactive drill-down to explore province counties:
 
 ```tsx
-import { Map } from "react-iran-maps";
+import { ChoroplethMap } from "react-iran-maps";
 
-export default function IsolatedMap() {
+export default function InteractiveMap() {
   return (
     <div style={{ width: "800px", height: "600px" }}>
-      <Map isolateProvince={true} />
+      <ChoroplethMap drilldown={true} />
     </div>
   );
 }
 ```
 
-When drilling down to a province, **only that province's counties are shown**. Other provinces disappear from view, providing a focused view of the selected region.
+When `drilldown` is enabled:
 
-#### Context Mode
-
-```tsx
-import { Map } from "react-iran-maps";
-
-export default function ContextMap() {
-  return (
-    <div style={{ width: "800px", height: "600px" }}>
-      <Map isolateProvince={false} />
-    </div>
-  );
-}
-```
-
-When drilling down to a province, **the province's counties are shown with other provinces visible in the background** (dimmed). This provides geographical context while exploring a specific province.
+- **Click on any province** to zoom in and view its counties
+- **Smooth animations** transition between province and county views
+- **Breadcrumb navigation** appears showing "ایران / ProvinceName"
+- **Click "ایران"** in the breadcrumb to return to the main view
 
 ### Data Visualization (Choropleth Maps)
 
-The Map component supports data-driven visualization, allowing you to display custom data values on provinces and counties with color-coded representation:
+The `ChoroplethMap` component supports two types of data visualization:
+
+#### 1. Quantitative (Numeric) Data
+
+Display numeric data with an automatic gradient-based color scale:
 
 ```tsx
-import { Map, ProvinceData } from "react-iran-maps";
+import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
-const mapData: ProvinceData[] = [
+const populationData: ProvinceData[] = [
   {
     name: "تهران",
-    count: 71885,
+    value: 15000000,
     counties: [
-      { name: "اسلامشهر", count: 1583 },
-      { name: "شهرری", count: 2730 },
-      { name: "دماوند", count: 641 },
+      { name: "تهران", value: 8500000 },
+      { name: "ری", value: 2000000 },
+      { name: "ورامین", value: 1200000 },
+      { name: "شهریار", value: 800000 },
+      { name: "اسلامشهر", value: 600000 },
+      { name: "پاکدشت", value: 400000 },
     ],
   },
   {
-    name: "البرز",
-    count: 9574,
+    name: "اصفهان",
+    value: 5120000,
     counties: [
-      { name: "فردیس", count: 5 },
-      { name: "اشتهارد", count: 98 },
+      { name: "اصفهان", value: 2000000 },
+      { name: "کاشان", value: 500000 },
+      { name: "نجف‌آباد", value: 400000 },
     ],
   },
+  // ... more provinces
 ];
 
-export default function DataMap() {
+export default function QuantitativeMap() {
   return (
     <div style={{ width: "100%", height: "600px" }}>
-      <Map
-        data={mapData}
-        colorScale={["#E0F2FE", "#0369A1"]}
-        showOnlyWithData={false}
+      <ChoroplethMap
+        drilldown
+        data={populationData}
+        legend={{
+          mode: "quantitative",
+          colors: ["#FFEECB", "#FFDFA0", "#FFD47F", "#FFC759", "#FFB728"],
+        }}
+      />
+    </div>
+  );
+}
+```
+
+#### 2. Qualitative (Categorical) Data
+
+Display categorical data with distinct colors for each category:
+
+```tsx
+import { ChoroplethMap, ProvinceData } from "react-iran-maps";
+
+const categoryData: ProvinceData[] = [
+  {
+    name: "تهران",
+    value: "بالا",
+    counties: [
+      { name: "تهران", value: "بالا" },
+      { name: "شمیرانات", value: "بالا" },
+      { name: "ری", value: "متوسط" },
+      { name: "ورامین", value: "متوسط" },
+      { name: "شهریار", value: "پایین" },
+    ],
+  },
+  {
+    name: "اصفهان",
+    value: "متوسط",
+    counties: [
+      { name: "اصفهان", value: "بالا" },
+      { name: "کاشان", value: "متوسط" },
+      { name: "نجف‌آباد", value: "پایین" },
+    ],
+  },
+  // ... more provinces
+];
+
+export default function QualitativeMap() {
+  return (
+    <div style={{ width: "100%", height: "600px" }}>
+      <ChoroplethMap
+        drilldown
+        data={categoryData}
+        legend={{
+          mode: "qualitative",
+          items: [
+            { value: "پایین", color: "#e8f5e9", label: "پایین" },
+            { value: "متوسط", color: "#81c784", label: "متوسط" },
+            { value: "بالا", color: "#2e7d32", label: "بالا" },
+          ],
+        }}
       />
     </div>
   );
@@ -137,30 +192,35 @@ export default function DataMap() {
 ```typescript
 interface CountyData {
   name: string; // County name (in Persian)
-  count: number; // Value to display
+  value?: string | number; // Value to display (number for quantitative, string for qualitative)
 }
 
 interface ProvinceData {
   name: string; // Province name (in Persian)
-  count: number; // Value to display
+  value?: string | number; // Value to display
   counties?: CountyData[]; // Optional county-level data
 }
 ```
 
+**Legend Modes**:
+
+- **Quantitative**: Automatically creates a gradient-based color scale for numeric values
+- **Qualitative**: Maps specific string values to custom colors for categorical data
+
 **Features**:
 
-- **Automatic Color Scaling**: Values are automatically mapped to colors using a gradient
+- **Automatic Color Mapping**: Values are automatically mapped to colors based on legend configuration
 - **Interactive Tooltips**: Hover over regions to see their values
 - **County-Level Data**: Support for both province and county-level data
-- **Flexible Filtering**: Show only regions with data or display all regions
-- **Custom Color Schemes**: Define your own color gradients
+- **Custom Color Schemes**: Define your own color gradients or category colors
+- **Smart Legend**: Automatically displays the appropriate legend type
 
 ### Custom Tooltip Content
 
-You can customize the tooltip content by providing a `renderTooltipContent` function:
+Customize the tooltip content by providing a `renderTooltipContent` function:
 
 ```tsx
-import { Map, ProvinceMapItem, CountyFeature } from "react-iran-maps";
+import { ChoroplethMap, ProvinceMapItem, CountyFeature } from "react-iran-maps";
 
 const customTooltipRenderer = (
   provinceData?: ProvinceMapItem,
@@ -168,11 +228,20 @@ const customTooltipRenderer = (
 ) => {
   if (!provinceData) return "";
 
+  const locationName = geo?.properties.cityName || provinceData.name;
+  const valueLabel =
+    typeof provinceData.value === "number"
+      ? `تعداد: ${provinceData.value.toLocaleString("fa-IR")}`
+      : `دسته: ${provinceData.value}`;
+
   return `
-    <div style="text-align: right; direction: rtl;">
-      <h3 style="margin: 0 0 8px 0; color: #333;">${provinceData.name}</h3>
-      <p style="margin: 0; color: #666;">تعداد: ${provinceData.count.toLocaleString()}</p>
-      ${geo?.properties.cityName ? `<p style="margin: 4px 0 0 0; color: #888; font-size: 12px;">شهرستان: ${geo.properties.cityName}</p>` : ""}
+    <div style="text-align: right; direction: rtl; padding: 8px;">
+      <h3 style="margin: 0 0 8px 0; color: #333; font-size: 16px;">
+        ${locationName}
+      </h3>
+      <p style="margin: 0; color: #666; font-size: 14px;">
+        ${valueLabel}
+      </p>
     </div>
   `;
 };
@@ -180,7 +249,11 @@ const customTooltipRenderer = (
 export default function CustomTooltipMap() {
   return (
     <div style={{ width: "100%", height: "600px" }}>
-      <Map data={mapData} renderTooltipContent={customTooltipRenderer} />
+      <ChoroplethMap
+        drilldown
+        data={mapData}
+        renderTooltipContent={customTooltipRenderer}
+      />
     </div>
   );
 }
@@ -188,109 +261,140 @@ export default function CustomTooltipMap() {
 
 ### Component Features
 
-The `Map` component includes:
+The `ChoroplethMap` component includes:
 
-1. **Province View**: Shows all 31 provinces of Iran
-2. **County View**: Click on any province to see its counties
-3. **Smooth Animations**: Powered by Motion library for fluid transitions when drilling down
-4. **Interactive Zoom**: Mouse wheel zoom support with zoom range (0.5x to 10x)
-5. **Hover Effects**: Interactive hover states with visual feedback
-6. **Breadcrumb Navigation**: Shows current location (ایران/ProvinceName) with clickable back navigation
-7. **Custom Tooltips**: Built-in tooltips with customizable content rendering
-8. **Data Visualization**: Built-in legend component for choropleth maps
-9. **Responsive Design**: Automatically adjusts to container size with configurable aspect ratio
-10. **Flexible Modes**: Choose between isolated or contextual county view
+1. **Province View**: Shows all 31 provinces of Iran with data visualization
+2. **County Drill-Down**: Click on any province to explore its counties (when `drilldown` is enabled)
+3. **Smooth Animations**: Powered by Motion library for fluid transitions between views
+4. **Dual Legend Modes**: Quantitative (gradient) and Qualitative (categorical) legends
+5. **Interactive Tooltips**: Built-in tooltips with customizable content rendering
+6. **Smart Color Mapping**: Automatic color assignment based on data values
+7. **Breadcrumb Navigation**: Shows current location (ایران/ProvinceName) with clickable back button
+8. **Responsive Design**: Automatically adjusts to container size with configurable aspect ratio
+9. **Persian Support**: Full RTL support with Persian labels and formatting
+10. **TypeScript**: Fully typed for better developer experience
 
 ### Interaction Flow
 
-1. **Initial State**: Map displays all Iranian provinces with breadcrumb showing "ایران"
-2. **Hover**: Hovering over a province highlights it and shows tooltip with province name and data
-3. **Click Province**: Clicking zooms into the selected province with smooth animation and shows its counties
-4. **County View**: Counties are displayed with breadcrumb showing "ایران/ProvinceName"
-5. **Navigation**: Click "ایران" in breadcrumb to return to province view
-6. **Zoom**: Use mouse wheel or zoom controls to zoom in/out (0.5x to 10x range)
-7. **Custom Tooltips**: Hover over counties to see custom tooltip content (if provided)
+1. **Initial State**: Map displays all 31 Iranian provinces
+2. **Hover**: Hovering over a province shows tooltip with name and data value
+3. **Click Province** (if `drilldown` enabled): Smoothly zooms into the selected province and shows its counties
+4. **County View**: Counties are displayed with breadcrumb showing "ایران / ProvinceName"
+5. **Navigation**: Click "ایران" in breadcrumb to return to province view with smooth animation
+6. **Legend**: Automatically displays the appropriate legend (quantitative or qualitative) based on data type
+7. **Custom Tooltips**: Full control over tooltip content via `renderTooltipContent` prop
 
 ## Component API
 
-### Map Component
+### ChoroplethMap Component
 
-The main map component with built-in interactivity.
+The main map component with built-in interactivity and data visualization.
 
 **Props**:
 
-| Prop                   | Type                              | Default                                                   | Description                                                                                                                                                                      |
-| ---------------------- | --------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `isolateProvince`      | `boolean`                         | `true`                                                    | When `true`, drilling down shows only the selected province's counties. When `false`, drilling down zooms to the province but still shows all other provinces in the background. |
-| `data`                 | `ProvinceData[]`                  | `undefined`                                               | Array of province data with counts and optional county data. When provided, the map displays color-coded regions based on values.                                                |
-| `showOnlyWithData`     | `boolean`                         | `false`                                                   | When `true`, only provinces/counties that have data are shown. When `false`, all regions are displayed with data-based coloring where available.                                 |
-| `colorScale`           | `string[]`                        | `["#AADBDD", "#75C4C8", "#37AAAF", "#199DA3", "#16898E"]` | Custom color gradient for data visualization. Provide an array of colors for the gradient.                                                                                       |
-| `width`                | `number`                          | `800`                                                     | Width of the map container in pixels.                                                                                                                                            |
-| `height`               | `number`                          | `600`                                                     | Height of the map container in pixels.                                                                                                                                           |
-| `aspectRatio`          | `string`                          | `"1.23"`                                                  | CSS aspect ratio for responsive sizing.                                                                                                                                          |
-| `renderTooltipContent` | `(provinceData?, geo?) => string` | `undefined`                                               | Custom function to render tooltip content. Receives province/county data and geography object.                                                                                   |
+| Prop                   | Type                              | Default              | Description                                                                                                                             |
+| ---------------------- | --------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `drilldown`            | `boolean`                         | `false`              | When `true`, enables interactive drill-down to explore province counties by clicking on provinces.                                      |
+| `data`                 | `ProvinceData[]`                  | `undefined`          | Array of province data with values (numeric or string) and optional county data for visualization.                                      |
+| `legend`               | `LegendConfig`                    | `undefined`          | Legend configuration object. Can be quantitative (with colors array) or qualitative (with items array). See Legend Configuration below. |
+| `disableTooltip`       | `boolean`                         | `false`              | When `true`, disables tooltip functionality.                                                                                            |
+| `width`                | `number`                          | `800`                | Width of the map SVG in pixels.                                                                                                         |
+| `height`               | `number`                          | `600`                | Height of the map SVG in pixels.                                                                                                        |
+| `scale`                | `number`                          | `width/height * 3.4` | Custom scale for map projection. Higher values zoom in more.                                                                            |
+| `aspectRatio`          | `string`                          | `"1.23"`             | CSS aspect ratio for responsive container sizing.                                                                                       |
+| `renderTooltipContent` | `(provinceData?, geo?) => string` | `undefined`          | Custom function to render tooltip HTML content. Receives province/county data and geography object.                                     |
+
+**Legend Configuration**:
+
+```typescript
+// Quantitative Legend (for numeric data)
+interface QuantitativeLegend {
+  mode: "quantitative";
+  colors: string[]; // Array of colors for gradient (e.g., ["#FFEECB", "#FFB728"])
+  disable?: boolean; // Optional: hide legend
+}
+
+// Qualitative Legend (for categorical data)
+interface QualitativeLegend {
+  mode: "qualitative";
+  items: Array<{
+    value: string; // Category value
+    color: string; // Color for this category
+    label: string; // Display label
+  }>;
+  disable?: boolean; // Optional: hide legend
+}
+
+type LegendConfig = QuantitativeLegend | QualitativeLegend;
+```
 
 **Usage Examples**:
 
 ```tsx
-// Default: Isolated province view (only shows selected province counties)
-<Map />
+// Basic static map
+<ChoroplethMap />
 
-// Context view: Shows selected province counties with other provinces visible
-<Map isolateProvince={false} />
+// Interactive map with drill-down
+<ChoroplethMap drilldown />
 
-// Data visualization: Display data with custom colors
-<Map
-  data={mapData}
-  colorScale={["#FEE2E2", "#991B1B"]}
-  showOnlyWithData={false}
+// Quantitative data with custom colors
+<ChoroplethMap
+  drilldown
+  data={populationData}
+  legend={{
+    mode: "quantitative",
+    colors: ["#E0F2FE", "#0369A1"],
+  }}
 />
 
-// Show only regions with data
-<Map
-  data={mapData}
-  showOnlyWithData={true}
+// Qualitative (categorical) data
+<ChoroplethMap
+  drilldown
+  data={categoryData}
+  legend={{
+    mode: "qualitative",
+    items: [
+      { value: "low", color: "#e8f5e9", label: "Low" },
+      { value: "medium", color: "#81c784", label: "Medium" },
+      { value: "high", color: "#2e7d32", label: "High" },
+    ],
+  }}
 />
 
-// Custom dimensions and aspect ratio
-<Map
+// Custom dimensions and scale
+<ChoroplethMap
   width={1000}
-  height={700}
-  aspectRatio="1.4"
+  height={800}
+  scale={3500}
+  aspectRatio="1.25"
 />
 
-// Custom tooltip content
-<Map
+// Custom tooltip
+<ChoroplethMap
   data={mapData}
   renderTooltipContent={(data, geo) =>
-    `<div>${data?.name}: ${data?.count}</div>`
+    `<div>${data?.name}: ${data?.value}</div>`
   }
 />
+
+// Disable tooltip
+<ChoroplethMap disableTooltip />
 ```
 
 **Features**:
 
-- Automatic province/county switching
+- Automatic province/county switching with smooth animations
+- Dual legend modes (quantitative gradient & qualitative categorical)
 - Built-in hover states with customizable tooltips
-- Click to drill-down functionality with smooth Motion-powered animations
-- Interactive zoom with mouse wheel support (0.5x to 10x range)
-- Breadcrumb navigation (ایران/ProvinceName)
-- Built-in legend component for data visualization
-- Configurable isolation mode
-- Responsive design with customizable dimensions and aspect ratio
+- Click to drill-down functionality (when enabled)
+- Breadcrumb navigation (ایران / ProvinceName)
+- Responsive design with customizable dimensions
+- Full TypeScript support with complete type definitions
+- Optimized for performance with TopoJSON data
 
 ## Data Structure
 
 The package includes high-quality TopoJSON data for Iran:
-
-### Available Data Files
-
-- `Shahrestan1400-3x-simple.json` - Simplified county boundaries (recommended for performance)
-- `Shahrestan1400.json` - Full detail county boundaries
-- `iran-provinces.json` - Province-level data
-- `iran-counties.json` - County-level data
-- `Iran1400.json` - Complete Iran map data
-- `Iran1400geo-topo.json` - Alternative topology data
 
 ### Data Properties
 
@@ -345,20 +449,31 @@ The package includes high-quality TopoJSON data for Iran:
 
 ## Roadmap
 
-- [x] Customizable color schemes
+**Completed Features**:
+
+- [x] Interactive drill-down from provinces to counties
+- [x] Dual legend modes (quantitative & qualitative)
+- [x] Customizable color schemes for both legend types
 - [x] Data layer support for choropleth maps
-- [x] Tooltip support (built-in hover info)
-- [x] Legend component for data visualization
-- [x] Custom tooltip content rendering
-- [x] Interactive zoom with mouse wheel support
+- [x] Smart tooltip system with custom content rendering
 - [x] Smooth animations powered by Motion library
-- [x] Breadcrumb navigation
+- [x] Breadcrumb navigation with back button
 - [x] Responsive design with configurable dimensions
-- [ ] Custom event handlers (onProvinceClick, onCountyClick, etc.)
-- [ ] Custom styling props
-- [ ] Labels and annotations
-- [ ] Export/download map as image
-- [ ] Accessibility improvements
+- [x] Full TypeScript support with complete type definitions
+- [x] Persian and English bilingual support
+
+**Planned Features**:
+
+- [ ] Custom event handlers (`onProvinceClick`, `onCountyClick`, `onProvinceHover`, etc.)
+- [ ] Additional styling props for borders, fills, and hover states
+- [ ] Province and county labels with optional visibility
+- [ ] Custom annotations and markers
+- [ ] Export/download map as PNG/SVG
+- [ ] Zoom controls (buttons)
+- [ ] Touch gesture support for mobile devices
+- [ ] Accessibility improvements (ARIA labels, keyboard navigation)
+- [ ] Performance optimizations for large datasets
+- [ ] Additional map projections
 
 ## Development
 
@@ -400,8 +515,6 @@ MIT © [rezasohrabi](https://github.com/rezasohrabi)
 - Map data based on Iran administrative boundaries (1400/2021)
 - Built with [react-simple-maps](https://www.react-simple-maps.io/)
 - Powered by [d3-geo](https://github.com/d3/d3-geo) and [topojson](https://github.com/topojson/topojson)
-- Smooth animations powered by [Motion](https://motion.dev/)
-- Interactive tooltips by [react-tooltip](https://react-tooltip.com/)
 
 ## Support
 
