@@ -15,6 +15,7 @@ export function QuantitativeLegend({ scale }: any) {
 
   return (
     <div
+      className="legend quantitative-legend"
       style={{
         display: "flex",
         gap: 12,
@@ -49,9 +50,9 @@ export function QualitativeLegend({ scale }: any) {
   const range = scale.range();
   const items = scale.domain();
 
-  console.log("qualitative legend", range, items);
   return (
     <div
+      className="legend qualitative-legend"
       style={{
         display: "flex",
         gap: 16,

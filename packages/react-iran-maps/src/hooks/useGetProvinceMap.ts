@@ -7,8 +7,6 @@ export function useGetProvinceMap(data?: ProvinceData[]) {
       return {};
     }
 
-    console.log("data", data);
-
     const provinceMap: Record<string, ProvinceMapItem> = {};
 
     if (data) {
