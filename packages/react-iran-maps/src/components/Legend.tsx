@@ -19,11 +19,7 @@ export function QuantitativeLegend({ scale }: any) {
       style={{
         display: "flex",
         gap: 12,
-        marginTop: 12,
         fontSize: 12,
-        position: "absolute",
-        top: 0,
-        right: 0,
       }}
     >
       {min && <div>کمترین: {Intl.NumberFormat("fa-IR").format(min)} مطلب</div>}
@@ -58,9 +54,6 @@ export function QualitativeLegend({ scale }: any) {
         gap: 16,
         fontSize: 12,
         fontWeight: 400,
-        position: "absolute",
-        top: "500px",
-        right: "20px",
         direction: "rtl",
       }}
     >

@@ -27,14 +27,15 @@ export default function Home() {
             </p>
             <div
               style={{
-                width: "100%",
+                width: "30%",
                 height: "500px",
                 overflow: "hidden",
               }}
             >
               <ChoroplethMap
-                width={800}
-                height={600}
+                width={400}
+                height={400}
+                scale={1100}
                 aspectRatio="1.23"
                 drilldown
                 data={mockProvinceData}
@@ -74,7 +75,7 @@ export default function Home() {
                 data={mockCategoricalData}
                 disableTooltip
                 legend={{
-                  disable: true,
+                  disable: false,
                   mode: "qualitative",
                   items: [
                     { value: "پایین", color: "#e8f5e9", label: "پایین" },

@@ -57,6 +57,11 @@ export interface ChoroplethMapProps {
   legend?: LegendConfig;
 
   /**
+   * Scale of the map.
+   */
+  scale?: number;
+
+  /**
    * Custom tooltip content.
    */
   renderTooltipContent?: (

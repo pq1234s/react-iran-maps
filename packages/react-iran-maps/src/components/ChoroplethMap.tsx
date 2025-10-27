@@ -35,6 +35,7 @@ export function ChoroplethMap({
   height = 600,
   aspectRatio = "1.23",
   disableTooltip = false,
+  scale: scaleProps,
   legend,
 }: ChoroplethMapProps) {
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
@@ -43,9 +44,9 @@ export function ChoroplethMap({
   );
 
   const colorScale = legend?.colors || DEFAULT_COLOR_RANGE;
+  const defaultScale = scaleProps || Math.min(width, height) * 3.4;
 
   const [zoom, setZoom] = useState(1);
-  const defaultScale = Math.min(width, height) * 3.4;
   const [scale, setScale] = useState(defaultScale);
   const defaultCenter = [53.5, 32.5] as [number, number];
   const [center, setCenter] = useState<[number, number]>(defaultCenter);
@@ -258,21 +259,25 @@ export function ChoroplethMap({
   return (
     <>
       {!disableTooltip && <Tooltip />}
-      {selectedProvince && (
-        <Breadcrumbs
-          selectedProvince={selectedProvince}
-          handleBack={handleBack}
-        />
-      )}
+
       <div
         data-tooltip-id="tooltip"
         data-tooltip-html={tooltipContent ?? ""}
         style={{
           width: "100%",
           height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           aspectRatio: aspectRatio,
         }}
       >
+        {selectedProvince && (
+          <Breadcrumbs
+            selectedProvince={selectedProvince}
+            handleBack={handleBack}
+          />
+        )}
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
