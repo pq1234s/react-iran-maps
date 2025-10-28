@@ -12,6 +12,7 @@ export function Tooltip() {
         borderRadius: "6px",
         padding: "12px",
         textAlign: "right",
+        direction: "ltr",
         boxShadow: "0 0 1px 0 rgba(0, 0, 0, 0.1)",
       }}
       data-tooltip-float={true}
