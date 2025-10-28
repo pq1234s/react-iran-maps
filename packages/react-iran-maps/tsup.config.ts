@@ -1,15 +1,16 @@
-import { defineConfig } from "tsup";
+import { defineConfig, Options } from "tsup";
 
-export default defineConfig({
+export default defineConfig((options: Options) => ({
   entry: ["src/index.tsx"],
   format: ["cjs", "esm"],
   dts: true,
   sourcemap: false,
-  minify: true,
-  clean: true,
+  silent: false,
+  minify: !options.watch,
+  clean: !options.watch,
   external: ["react", "react-dom", "react/jsx-runtime"],
-  treeshake: true,
+  treeshake: !options.watch,
   banner: {
     js: `"use client";`,
   },
-});
+}));
