@@ -1,69 +1,64 @@
 import { CountyFeature } from "./CountyFeature";
 import { ProvinceData, ProvinceMapItem } from "./ProvinceData";
 
+/**
+ * Single legend item for qualitative mode.
+ */
 interface LegendItem {
+  /** Display label */
   label: string;
+  /** Value to match against data */
   value: string;
+  /** Hex color code */
   color: string;
 }
 
+/**
+ * Legend for quantitative data (numeric values).
+ * @example { mode: "quantitative", colors: ["#FFF", "#000"] }
+ */
 interface QuantitativeLegend {
   disable?: boolean;
   mode: "quantitative";
-  colors: string[]; // ✅ required
-  items?: never; // ❌ not allowed when quantitative
+  /** Color gradient from low to high */
+  colors: string[];
+  items?: never;
 }
 
+/**
+ * Legend for qualitative data (categorical values).
+ * @example { mode: "qualitative", items: [{ label: "Low", value: "low", color: "#FFF" }] }
+ */
 interface QualitativeLegend {
   disable?: boolean;
   mode: "qualitative";
-  items: LegendItem[]; // ✅ required
-  colors?: never; // ❌ not allowed when qualitative
+  items: LegendItem[];
+  colors?: never;
 }
 
 type LegendConfig = QuantitativeLegend | QualitativeLegend;
 
+/**
+ * Props for the ChoroplethMap component.
+ */
 export interface ChoroplethMapProps {
-  /**
-   * When true, drilling down is enabled.
-   */
+  /** Enable drilldown to counties on click */
   drilldown?: boolean;
-  /**
-   * When true, the tooltip is disabled.
-   */
+  /** Disable tooltips */
   disableTooltip?: boolean;
-  /**
-   * Data to display on the map with counts for provinces and counties
-   */
+  /** Province and county data */
   data?: ProvinceData[];
-
-  /**
-   * Width of the map.
-   */
+  /** Map width in pixels (default: 800) */
   width?: number;
-  /**
-   * Height of the map.
-   */
+  /** Map height in pixels (default: 600) */
   height?: number;
-
-  /**
-   * Aspect ratio of the map.
-   */
+  /** Aspect ratio container (default: "1.23") */
   aspectRatio?: string;
-
-  /**
-   * Legend configuration.
-   */
+  /** Legend configuration */
   legend?: LegendConfig;
-
-  /**
-   * Scale of the map.
-   */
+  /** Map zoom scale */
   scale?: number;
-
-  /**
-   * Custom tooltip content.
-   */
+  /** Custom tooltip HTML renderer */
   renderTooltipContent?: (
     provinceData?: ProvinceMapItem,
     geo?: CountyFeature

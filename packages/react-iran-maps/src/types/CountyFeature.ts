@@ -1,12 +1,19 @@
+/**
+ * GeoJSON feature for a county/city. Used internally and passed to custom tooltip renderers.
+ * @example Used in renderTooltipContent prop to access county properties
+ */
 export interface CountyFeature {
   type: "Feature";
   properties: {
-    // Core fields (used in the app)
-    provincName?: string; // Province name in Persian (e.g., "تهران")
-    cityName: string; // City/County name in Persian (e.g., "شهریار")
-    NAME_1: string; // Province name in English (e.g., "Tehran")
-    NAME_2?: string; // City name in Latin script (transliterated)
-    // Geometry fields
+    /** Province name in Persian (e.g., "تهران") */
+    provincName?: string;
+    /** County name in Persian (e.g., "شهریار") */
+    cityName: string;
+    /** Province name in English (e.g., "Tehran") */
+    NAME_1: string;
+    /** County name in English (optional) */
+    NAME_2?: string;
+    /** Geometric properties (optional) */
     area?: number;
     perimeter?: number;
     Shape_Leng?: number;
