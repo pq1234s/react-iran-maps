@@ -125,14 +125,8 @@ export function ChoroplethMap({
       geographies = provinceGeometries;
     }
 
-    geographies = geographies.filter((geo) => {
-      const provinceName =
-        geo.properties.provincName || geo.properties.NAME_1 || "";
-      return provinceName in provinceMap;
-    });
-
     return geographies;
-  }, [displayedProvince, allCounties, provinceGeometries, provinceMap]);
+  }, [displayedProvince, allCounties, provinceGeometries]);
 
   // Calculate optimal center and scale for current view
   const { optimalCenter, optimalScale } = useMemo(() => {
