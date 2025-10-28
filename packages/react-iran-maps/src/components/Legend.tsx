@@ -19,6 +19,7 @@ export function QuantitativeLegend({ scale }: any) {
       style={{
         display: "flex",
         gap: 12,
+        alignItems: "center",
         fontSize: 12,
       }}
     >
@@ -52,6 +53,7 @@ export function QualitativeLegend({ scale }: any) {
       style={{
         display: "flex",
         gap: 16,
+        alignItems: "center",
         fontSize: 12,
         fontWeight: 400,
         direction: "rtl",
