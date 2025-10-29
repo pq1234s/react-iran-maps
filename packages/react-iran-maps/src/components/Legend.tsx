@@ -24,6 +24,7 @@ export function QuantitativeLegend({ scale }: any) {
         gap: 12,
         alignItems: "center",
         fontSize: 12,
+        direction: "ltr",
       }}
     >
       {min && <div>کمترین: {Intl.NumberFormat("fa-IR").format(min)} مطلب</div>}
