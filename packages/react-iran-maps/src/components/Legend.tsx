@@ -6,8 +6,11 @@ export function QuantitativeLegend({ scale }: any) {
   const lastIndex = range.length - 1;
   const firstIndex = 0;
 
-  const [min] = scale.invertExtent(range[firstIndex]);
-  const [_, max] = scale.invertExtent(range[lastIndex]);
+  const [minRaw] = scale.invertExtent(range[firstIndex]);
+  const [_, maxRaw] = scale.invertExtent(range[lastIndex]);
+
+  const min = isFinite(minRaw) ? minRaw : "0";
+  const max = isFinite(maxRaw) ? maxRaw : "0";
 
   if (!min && !max) {
     return null;
