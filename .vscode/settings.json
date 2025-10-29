@@ -1,7 +1,16 @@
 {
+  "editor.formatOnSave": true,
+  "git.confirmSync": false,
+  "editor.smoothScrolling": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.colorTheme": "GitHub Dark",
+  "workbench.activityBar.orientation": "vertical",
   "eslint.workingDirectories": [
     {
       "mode": "auto"
     }
-  ]
+  ],
+  "files.eol": "\n"
 }
