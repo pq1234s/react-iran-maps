@@ -243,6 +243,16 @@ export function ChoroplethMap({
                     geography={geo}
                     onMouseEnter={() => {
                       if (disableTooltip) return;
+
+                      console.log(data);
+                      if (data?.length === 0) {
+                        setTooltipContent(
+                          renderTooltipContent
+                            ? renderTooltipContent(currentItem, geo)
+                            : `<div style="min-width: 60px; text-align: center;">${selectedProvince ? geo.properties.cityName : geo.properties.provincName}</div>`
+                        );
+                        return;
+                      }
                       setTooltipContent(
                         renderTooltipContent
                           ? renderTooltipContent(currentItem, geo)
