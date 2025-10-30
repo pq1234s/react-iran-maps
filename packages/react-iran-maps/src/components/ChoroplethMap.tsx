@@ -11,8 +11,10 @@ import { scaleOrdinal, scaleQuantize } from "d3-scale";
 
 import {
   useAllCounties,
+  useCurrentGeographies,
   useGenerateProvinceGeometries,
   useGetProvinceMap,
+  useOptimalScale,
 } from "../hooks";
 import { ChoroplethMapProps, ProvinceMapItem } from "../types";
 import { getProvinceName } from "../lib";
@@ -108,84 +110,13 @@ export function ChoroplethMap({
     }
   }, [selectedProvince]);
 
-  const allCounties = useAllCounties();
-  const provinceGeometries = useGenerateProvinceGeometries();
+  const currentGeographies = useCurrentGeographies(displayedProvince);
 
-  // Current view data - uses displayedProvince to keep showing counties during zoom out
-  const currentGeographies = useMemo(() => {
-    let geographies;
-
-    if (displayedProvince) {
-      // Show only counties for selected province
-      geographies = allCounties.filter((county) => {
-        const countyProvinceName =
-          county.properties.provincName || county.properties.NAME_1;
-        return countyProvinceName === displayedProvince;
-      });
-    } else {
-      // Show provinces
-      geographies = provinceGeometries;
-    }
-
-    return geographies;
-  }, [displayedProvince, allCounties, provinceGeometries]);
-
-  // Calculate optimal center and scale for current view
-  const { optimalCenter, optimalScale } = useMemo(() => {
-    if (selectedProvince) {
-      // Calculate bounding box for selected province counties only
-      const selectedCounties = allCounties.filter((county) => {
-        const countyProvinceName =
-          county.properties.provincName || county.properties.NAME_1;
-        return countyProvinceName === selectedProvince;
-      });
-
-      if (selectedCounties.length === 0) {
-        return {
-          optimalCenter: defaultCenter,
-          optimalScale: defaultScale,
-        };
-      }
-
-      const bounds = geoBounds({
-        type: "FeatureCollection",
-        features: selectedCounties,
-      });
-
-      const [[minLon, minLat], [maxLon, maxLat]] = bounds;
-
-      // Calculate center
-      const centerLon = (minLon + maxLon) / 2;
-      const centerLat = (minLat + maxLat) / 2;
-
-      // Calculate dimensions of province
-      const lonDelta = maxLon - minLon;
-      const latDelta = maxLat - minLat;
-      const maxDelta = Math.max(lonDelta, latDelta);
-
-      // Iran's approximate extent: ~18 degrees longitude, ~15 degrees latitude
-      // Province view should zoom in based on relative size
-      // Smaller provinces get higher zoom, larger provinces get lower zoom
-      const iranMaxDelta = 18; // approximate width of Iran in degrees
-      const zoomFactor = iranMaxDelta / maxDelta;
-
-      // Base scale for Iran is 700, multiply by zoom factor for province
-      // Add a cap to prevent extreme zoom for very small provinces
-      const calculatedScale =
-        defaultScale * 1.1 * Math.min(zoomFactor * 0.7, 4.5);
-
-      return {
-        optimalCenter: [centerLon, centerLat] as [number, number],
-        optimalScale: calculatedScale,
-      };
-    }
-
-    // Default for provinces view
-    return {
-      optimalCenter: defaultCenter,
-      optimalScale: defaultScale,
-    };
-  }, [selectedProvince, allCounties]);
+  const { optimalCenter, optimalScale } = useOptimalScale(
+    displayedProvince,
+    defaultCenter,
+    defaultScale
+  );
 
   // Handle province selection changes with delayed geography update when going back
   useEffect(() => {
