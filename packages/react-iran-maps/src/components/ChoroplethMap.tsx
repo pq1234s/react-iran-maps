@@ -6,13 +6,10 @@ import React, {
   useRef,
 } from "react";
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
-import { geoBounds } from "d3-geo";
 import { scaleOrdinal, scaleQuantize } from "d3-scale";
 
 import {
-  useAllCounties,
   useCurrentGeographies,
-  useGenerateProvinceGeometries,
   useGetProvinceMap,
   useOptimalScale,
 } from "../hooks";
