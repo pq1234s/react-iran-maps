@@ -110,7 +110,7 @@ export function ChoroplethMap({
   const currentGeographies = useCurrentGeographies(displayedProvince);
 
   const { optimalCenter, optimalScale } = useOptimalScale(
-    displayedProvince,
+    selectedProvince,
     defaultCenter,
     defaultScale
   );
