@@ -1,3 +1,5 @@
+"use client";
+
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
 export function IncompleteDataSample() {
@@ -28,4 +30,3 @@ export function IncompleteDataSample() {
     </section>
   );
 }
-

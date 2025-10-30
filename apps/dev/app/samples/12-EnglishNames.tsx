@@ -1,3 +1,5 @@
+"use client";
+
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
 export function EnglishNamesSample() {
@@ -27,4 +29,3 @@ export function EnglishNamesSample() {
     </section>
   );
 }
-

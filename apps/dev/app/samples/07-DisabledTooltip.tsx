@@ -1,3 +1,5 @@
+"use client";
+
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
 export function DisabledTooltipSample() {
@@ -19,9 +21,7 @@ export function DisabledTooltipSample() {
       <h2 className="text-2xl font-bold mb-4 text-gray-800">
         ۷. نقشه بدون Tooltip
       </h2>
-      <p className="text-gray-600 mb-4">
-        نمایش نقشه با غیرفعال‌سازی tooltip
-      </p>
+      <p className="text-gray-600 mb-4">نمایش نقشه با غیرفعال‌سازی tooltip</p>
       <div className="border border-gray-200 rounded-lg p-4">
         <ChoroplethMap
           data={quantitativeData}
@@ -35,4 +35,3 @@ export function DisabledTooltipSample() {
     </section>
   );
 }
-

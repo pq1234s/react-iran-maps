@@ -1,3 +1,5 @@
+"use client";
+
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
 export function CustomAspectRatioSample() {
@@ -33,4 +35,3 @@ export function CustomAspectRatioSample() {
     </section>
   );
 }
-

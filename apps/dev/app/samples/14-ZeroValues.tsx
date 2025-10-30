@@ -1,3 +1,5 @@
+"use client";
+
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
 export function ZeroValuesSample() {
@@ -11,9 +13,7 @@ export function ZeroValuesSample() {
 
   return (
     <section className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        ۱۴. مقادیر صفر
-      </h2>
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">۱۴. مقادیر صفر</h2>
       <p className="text-gray-600 mb-4">
         استان‌هایی با مقدار صفر (سفید نمایش داده می‌شوند)
       </p>
@@ -29,4 +29,3 @@ export function ZeroValuesSample() {
     </section>
   );
 }
-

@@ -1,3 +1,5 @@
+"use client";
+
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
 export function NoLegendSample() {
@@ -35,4 +37,3 @@ export function NoLegendSample() {
     </section>
   );
 }
-
