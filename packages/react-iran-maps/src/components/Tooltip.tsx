@@ -4,6 +4,7 @@ export function Tooltip() {
   return (
     <ReactTooltip
       id="tooltip"
+      noArrow
       style={{
         zIndex: 1000,
         color: "black",
