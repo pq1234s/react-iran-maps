@@ -3,7 +3,7 @@ import * as topojson from "topojson-client";
 import iranData from "../assets/counties.json";
 import { CountyFeature } from "../types/CountyFeature";
 import { ProvinceFeature } from "../types/ProvinceFeature";
-import { useAllCounties } from "./allCounties";
+import { useAllCounties } from "./useAllCounties";
 
 // Create province geometries by merging counties using topojson.merge
 

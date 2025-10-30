@@ -9,10 +9,12 @@ import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import { geoBounds } from "d3-geo";
 import { scaleOrdinal, scaleQuantize } from "d3-scale";
 
-import { useAllCounties } from "../lib/allCounties";
-import { useGenerateProvinceGeometries } from "../lib/provinceGeometeries";
+import {
+  useAllCounties,
+  useGenerateProvinceGeometries,
+  useGetProvinceMap,
+} from "../hooks";
 import { ChoroplethMapProps, ProvinceMapItem } from "../types";
-import { useGetProvinceMap } from "../hooks";
 import { getProvinceName } from "../lib";
 import { Tooltip } from "./Tooltip";
 import { QualitativeLegend, QuantitativeLegend } from "./Legend";
