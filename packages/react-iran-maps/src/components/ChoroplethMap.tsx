@@ -244,7 +244,7 @@ export function ChoroplethMap({
                     onMouseEnter={() => {
                       if (disableTooltip) return;
 
-                      if (data?.length === 0) {
+                      if (!data || data?.length === 0) {
                         setTooltipContent(
                           renderTooltipContent
                             ? renderTooltipContent(currentItem, geo)
