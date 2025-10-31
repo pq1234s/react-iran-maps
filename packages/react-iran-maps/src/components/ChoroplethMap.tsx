@@ -92,8 +92,8 @@ export function ChoroplethMap({
       const dataMap:
         | Record<string, ProvinceMapItem>
         | ProvinceMapItem
-        | undefined = selectedProvince
-        ? provinceMap[selectedProvince]?.counties
+        | undefined = displayedProvince
+        ? provinceMap[displayedProvince]?.counties
         : provinceMap;
 
       const values: number[] = Object.values(dataMap || {}).map(
@@ -105,7 +105,7 @@ export function ChoroplethMap({
       setMinRange(min);
       setMaxRange(max);
     }
-  }, [selectedProvince]);
+  }, [displayedProvince]);
 
   const currentGeographies = useCurrentGeographies(displayedProvince);
 
@@ -230,8 +230,8 @@ export function ChoroplethMap({
                 let currentItem: ProvinceMapItem | undefined;
                 if (provinceName) {
                   currentItem =
-                    selectedProvince && geo.properties.cityName
-                      ? provinceMap[selectedProvince]?.counties?.[
+                    displayedProvince && geo.properties.cityName
+                      ? provinceMap[displayedProvince]?.counties?.[
                           geo.properties.cityName
                         ]
                       : provinceMap[provinceName];
