@@ -196,9 +196,9 @@ export function ChoroplethMap({
           aspectRatio: aspectRatio,
         }}
       >
-        {selectedProvince && (
+        {displayedProvince && (
           <Breadcrumbs
-            selectedProvince={selectedProvince}
+            selectedProvince={displayedProvince}
             handleBack={handleBack}
           />
         )}
@@ -244,12 +244,11 @@ export function ChoroplethMap({
                     onMouseEnter={() => {
                       if (disableTooltip) return;
 
-                      console.log(data);
                       if (data?.length === 0) {
                         setTooltipContent(
                           renderTooltipContent
                             ? renderTooltipContent(currentItem, geo)
-                            : `<div style="min-width: 60px; text-align: center;">${selectedProvince ? geo.properties.cityName : geo.properties.provincName}</div>`
+                            : `<div style="min-width: 60px; text-align: center;">${displayedProvince ? geo.properties.cityName : geo.properties.provincName}</div>`
                         );
                         return;
                       }
@@ -257,7 +256,7 @@ export function ChoroplethMap({
                         renderTooltipContent
                           ? renderTooltipContent(currentItem, geo)
                           : `<div>
-                              <div>${selectedProvince ? geo.properties.cityName : geo.properties.provincName}</div>
+                              <div>${displayedProvince ? geo.properties.cityName : geo.properties.provincName}</div>
                              ${legend?.mode === "quantitative" ? `<div>${Intl.NumberFormat("fa-IR").format((currentItem?.value as number) || 0)} :تعداد</div>` : `<div>دسته: ${currentItem?.value || "نامشخص"}</div>`} 
                             </div>`
                       );
