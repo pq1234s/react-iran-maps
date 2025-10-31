@@ -9,8 +9,8 @@ export function QuantitativeLegend({ scale }: any) {
   const [minRaw] = scale.invertExtent(range[firstIndex]);
   const [_, maxRaw] = scale.invertExtent(range[lastIndex]);
 
-  const min = isFinite(minRaw) ? minRaw : "0";
-  const max = isFinite(maxRaw) ? maxRaw : "0";
+  const min = isFinite(minRaw) ? String(minRaw) : "";
+  const max = isFinite(maxRaw) ? String(maxRaw) : "";
 
   if (!min && !max) {
     return null;
@@ -27,7 +27,9 @@ export function QuantitativeLegend({ scale }: any) {
         direction: "ltr",
       }}
     >
-      {min && <div>کمترین: {Intl.NumberFormat("fa-IR").format(min)} مطلب</div>}
+      {min && (
+        <div>کمترین: {Intl.NumberFormat("fa-IR").format(Number(min))} مطلب</div>
+      )}
       <div
         style={{
           display: "flex",
@@ -42,7 +44,11 @@ export function QuantitativeLegend({ scale }: any) {
           />
         ))}
       </div>
-      {max && <div>بیشترین: {Intl.NumberFormat("fa-IR").format(max)} مطلب</div>}
+      {max && (
+        <div>
+          بیشترین: {Intl.NumberFormat("fa-IR").format(Number(max))} مطلب
+        </div>
+      )}
     </div>
   );
 }
