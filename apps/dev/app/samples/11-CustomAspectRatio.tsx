@@ -25,7 +25,8 @@ export function CustomAspectRatioSample() {
       <div className="border border-gray-200 rounded-lg p-4">
         <ChoroplethMap
           data={quantitativeData}
-          aspectRatio="2"
+          scale={1800}
+          aspectRatio="4/2"
           legend={{
             mode: "quantitative",
             colors: ["#FEF3C7", "#FDE68A", "#FCD34D", "#FBBF24", "#F59E0B"],

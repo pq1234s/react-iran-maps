@@ -2,6 +2,12 @@
 
 import { ChoroplethMap, ProvinceData } from "react-iran-maps";
 
+/**
+ * Note: Province names in data are only used for matching and are not displayed.
+ * Even if you store names in English, they will still render in Persian on the map.
+ * Multilingual support is not available yet and will be added in the future.
+ * This note applies to apps that store province names in English.
+ */
 export function EnglishNamesSample() {
   const englishData: ProvinceData[] = [
     { name: "Tehran", value: 15000000 },

@@ -16,14 +16,14 @@ export function CustomTooltipSample() {
     { name: "البرز", value: 2800000 },
   ];
 
-  const customTooltipRenderer = (provinceData?: {
+  const customTooltipContentRenderer = (provinceData?: {
     name: string;
     value?: string | number;
   }) => {
     const name = provinceData?.name || "نامشخص";
     const value = provinceData?.value || 0;
     return `
-      <div style="padding: 10px; background: #1a1a1a; color: white; border-radius: 8px;">
+      <div style="padding: 10px; color: #000; border-radius: 8px;">
         <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${name}</div>
         <div style="color: #fbbf24;">جمعیت: ${typeof value === "number" ? Intl.NumberFormat("fa-IR").format(value) : value}</div>
       </div>
@@ -39,7 +39,7 @@ export function CustomTooltipSample() {
       <div className="border border-gray-200 rounded-lg p-4">
         <ChoroplethMap
           data={quantitativeData}
-          renderTooltipContent={customTooltipRenderer}
+          renderTooltipContent={customTooltipContentRenderer}
           legend={{
             mode: "quantitative",
             colors: ["#D1FAE5", "#6EE7B7", "#34D399", "#10B981", "#059669"],
