@@ -4,17 +4,17 @@ export function Tooltip() {
   return (
     <ReactTooltip
       id="tooltip"
+      border="1px solid #e0e0e0"
       noArrow
       style={{
         zIndex: 1000,
         color: "black",
         backgroundColor: "white",
-        border: "1px solid #8e8e8e",
+        minWidth: "60px",
         borderRadius: "6px",
         padding: "12px",
         textAlign: "right",
         direction: "ltr",
-        boxShadow: "0 0 1px 0 rgba(0, 0, 0, 0.1)",
       }}
       data-tooltip-float={true}
       float={true}
