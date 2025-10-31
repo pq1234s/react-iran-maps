@@ -10,6 +10,13 @@ export default defineConfig((options: Options) => ({
   clean: !options.watch,
   external: ["react", "react-dom", "react/jsx-runtime"],
   treeshake: !options.watch,
+  define: {
+    "process.env.NODE_ENV": '"production"',
+  },
+  esbuildOptions(options) {
+    options.drop = ["console", "debugger"];
+    options.legalComments = "none";
+  },
   banner: {
     js: `"use client";`,
   },
